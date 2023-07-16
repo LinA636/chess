@@ -15,8 +15,7 @@ class Knight < Piece
   end
 
   def next_movements
-    MOVEMENTS.map{|arr| [self.position[0]+arr[0], self.position[1]+arr[1]]}
-             .keep_if{|arr| position_on_board?(arr)} 
+    super(MOVEMENTS)
   end
 
   def to_s
