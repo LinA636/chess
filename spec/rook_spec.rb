@@ -10,6 +10,7 @@ describe Rook do
         expect(piece.symbol).to eq("\u{2656}")
         expect(piece.position).to eq([1,2])
         expect(piece.captured).to be false
+        expect(piece.first_move_done).to be false
       end
     end
 
@@ -21,6 +22,7 @@ describe Rook do
         expect(piece.symbol).to eq("\u{265C}")
         expect(piece.position).to eq([0,0])
         expect(piece.captured).to be false
+        expect(piece.first_move_done).to be false
       end
     end
   end
