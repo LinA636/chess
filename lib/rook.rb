@@ -1,0 +1,20 @@
+require_relative "../lib/piece"
+
+class Rook < Piece
+
+  MOVEMENTS =  Array.new(8) {|i| [[0,i], [i,0], [-i, 0], [0, -i]] unless i.zero?}.compact.flatten(1).freeze
+
+  def initialize(color, position)
+    if color == :white
+      symbol = "\u{2656}"
+    elsif color == :black
+      symbol = "\u{265C}"
+    end
+    super(color, symbol, position)
+  end
+
+  def next_movements
+    super(MOVEMENTS)
+  end
+
+end
