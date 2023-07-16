@@ -32,6 +32,7 @@ attr_accessor :board, :player1, :player2, :current_player
               if not: # make move
           # check if destination is valid
                 - valid move for chosen piece? (is one of the children?)
+                - for pawn: is movement or taking?
                 - destination does not occupy one of the current_players pieces.
           # check if a piece of opponent is going to be captured.
                 if yes: # mark captured piece as captured
