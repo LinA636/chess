@@ -1,9 +1,10 @@
 class Field
   attr_accessor :piece
-  attr_reader :color
+  attr_reader :id
 
-  def initialize(color, piece = nil)
-    @color = color
-    @piece = piece
+  def initialize(id)
+    @id = id
+    @piece = nil
   end
+
 end
