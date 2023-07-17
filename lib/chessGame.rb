@@ -6,11 +6,15 @@ attr_accessor :board, :player1, :player2, :current_player
 
   def initialize
     @board = ChessBoard.new
-    @player1 = Player.new("Player 1", :white)
-    @player2 = Player.new("Player 2", :black)
+    @player1 = Player.new(get_player_name("Player1"), :white)
+    @player2 = Player.new(get_player_name("Player2"), :black)
     @current_player = self.player1
   end
 
+  def get_player_name(player)
+    puts "#{player} type your name: "
+    gets.chomp
+  end
 
   def start
     until victory?
@@ -27,11 +31,12 @@ attr_accessor :board, :player1, :player2, :current_player
   def print_beginning_of_turn
     puts "_______________________________________"
     self.board.print_board
-    puts "#{self.current_player.name} it's your turn:"
+    puts "#{self.current_player.name}, it's your turn:"
   end
 
   def make_move
     move_pattern = get_move_pattern
+    validate_move_pattern(move_pattern)
   end
 
   def get_move_pattern
@@ -49,6 +54,16 @@ attr_accessor :board, :player1, :player2, :current_player
 
   def valid_input_pattern?(move)
     move.match?(/^[a-h][1-8][a-h][1-8]$/)
+  end
+
+  def validate_move_pattern(move_pattern)
+    start_destination = move_pattern[0..1]
+    end_destination = move_pattern[2..3]
+    occupies_cp_piece?(start_destination)
+  end
+
+  def occupies_cp_piece? #cp: current_player
+    
   end
 
   def valid_move?
