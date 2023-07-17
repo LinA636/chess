@@ -7,4 +7,8 @@ class Field
     @piece = nil
   end
 
+  def to_s
+    self.piece.nil? ? " " : self.piece
+  end
+
 end

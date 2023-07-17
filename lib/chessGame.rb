@@ -1,3 +1,6 @@
+require_relative "../lib/player"
+require_relative "../lib/chessBoard"
+
 class ChessGame
 attr_accessor :board, :player1, :player2, :current_player
 
@@ -5,17 +8,62 @@ attr_accessor :board, :player1, :player2, :current_player
     @board = ChessBoard.new
     @player1 = Player.new("Player 1", :white)
     @player2 = Player.new("Player 2", :black)
-    @current_player = @player1
+    @current_player = self.player1
   end
 
 
+  def start
+    until victory?
+      print_beginning_of_turn
+      make_move
+    end
+  end
+
+  def victory?
+    # king in checkmate
+    # king captured
+  end
+
+  def print_beginning_of_turn
+    puts "_______________________________________"
+    self.board.print_board
+    puts "#{self.current_player.name} it's your turn:"
+  end
+
+  def make_move
+    move_pattern = get_move_pattern
+  end
+
+  def get_move_pattern
+    players_move = get_player_input
+    until valid_input_pattern?(players_move)
+      players_move = get_player_input
+    end
+    players_move
+  end
+
+  def get_player_input
+    puts "Make your move (for e.g. a2a4): "
+    gets.chomp.downcase
+  end
+
+  def valid_input_pattern?(move)
+    move.match?(/^[a-h][1-8][a-h][1-8]$/)
+  end
+
+  def valid_move?
+    # start_field actually occupies current_players piece?
+    # destination field does not occupy current_players piece?
+    # destination_field valid move for chosen piece?
+    # no other piece in the way of chosen piece? (except for knight)
+  end
 =begin  
   #start_game
     # Therefore print the Explanations: How to
-      - save the game
-      - exit the game
-      - start a new game
-      - resume an old game
+      - save the game -> always possible
+      - exit the game -> always possible
+      - start a new game -> only at beginning
+      - resume an old game -> only at beginning
 
     # Make player decide to start a new game or (if available) resume an old game
 
@@ -53,5 +101,6 @@ attr_accessor :board, :player1, :player2, :current_player
       same procedure
                 
 =end
+
 
 end

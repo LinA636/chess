@@ -18,8 +18,4 @@ class Knight < Piece
     super(MOVEMENTS)
   end
 
-  def to_s
-    "Knight: #{self.position}"
-  end
-
 end

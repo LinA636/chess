@@ -24,4 +24,8 @@ class Piece
       [self.position[0]+movements[0], self.position[1]+movements[1]].keep_if{|arr| position_on_board?(arr)}
     end
   end
+
+  def to_s
+    self.symbol
+  end
 end
