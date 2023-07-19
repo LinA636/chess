@@ -10,8 +10,15 @@ require "matrix"
 class ChessBoard
   attr_accessor :board
   def initialize
-    @board = Matrix.build(8,8).each_with_index {|row, col| Field.new([row, col])} #übergeebe id (a1..) not postion
+    mapping = get_letter_number_hash
+    @board = Matrix.build(8,8).each_with_index {|row, col| Field.new("#{mapping[col]}#{8-row}")} 
     setup_board
+  end
+
+  def get_letter_number_hash
+    letters = ('a'..'h').to_a
+    numbers = (0..7).to_a
+    numbers.zip(letters).to_h
   end
 
   def setup_board
