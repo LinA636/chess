@@ -14,6 +14,62 @@ class ChessBoard
     setup_board
   end
 
+  def print_board
+    puts "  ---------------------------------"
+    self.board.row_vectors.each_with_index do |row, row_index|
+      print "#{row_index} "
+      row.to_a.each do |field|
+        print "| #{field.to_s} "
+      end
+      puts "|"
+      puts "  ---------------------------------"
+    end
+    puts "    a   b   c   d   e   f   g   h  "
+  end
+
+  def occupies_piece?(field)
+    !field.piece.nil?
+  end
+
+  def valid_start_field?(start_field, current_player)
+    unless occupies_cp_piece?(start_field, current_player)
+      puts "Pick one of YOUR figures: "
+      return false
+    end
+    return true
+  end
+
+  def occupies_cp_piece?(field, current_player) #cp: current_player
+    unless field.piece.nil?
+      return field.piece.color == current_player.color
+    end
+    return false
+  end
+
+  def end_destination_reachable?(end_destination)
+    #check if end_destination if reachable by chosen piece (are other pieces in the way?)
+    #if not: Pick other desttination!
+  end
+
+  def move_piece(start_field, end_field)
+    if occuppies_piece?(end_field)
+      unless occuppies_cp_piece?(end_field)
+        #update field
+        #mark piece as captured
+      end
+    end
+    # update start and end_field
+  end
+
+  def victory?
+    # king in checkmate
+    # king captured
+    check?
+    checkmate?
+    king_captured?
+  end
+
+  private
   def get_number_to_letter_hash
     letters = ('a'..'h').to_a
     numbers = (0..7).to_a.map(&:to_s)
@@ -65,29 +121,19 @@ class ChessBoard
     # ...
   end
 
-  def print_board
-    puts "  ---------------------------------"
-    self.board.row_vectors.each_with_index do |row, row_index|
-      print "#{row_index} "
-      row.to_a.each do |field|
-        print "| #{field.to_s} "
-      end
-      puts "|"
-      puts "  ---------------------------------"
-    end
-    puts "    a   b   c   d   e   f   g   h  "
+  def get_field(destination_pattern)
+    self.board.select {|field| field.id == destination_pattern}
   end
 
-  def occuppies_piece?(destination)
-    !get_field(destination).piece.nil?
+  def checkmate?
+    
   end
 
-  def get_field(destination)
-    self.board.select {|field| field.id == destination}
+  def check?
+
   end
 
-  def checkmate?(color)
-    # Check if the specified color is in checkmate
-    # ...
+  def king_captured?
+
   end
 end

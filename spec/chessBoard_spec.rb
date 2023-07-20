@@ -1,23 +1,55 @@
 require_relative "../lib/chessBoard"
-require_relative "../lib/field"
 
 describe ChessBoard do
+  subject(:board){described_class.new}
   describe '#occupies_piece?' do
-    subject(:board){described_class.new}
-    before do
-      allow(board).to receive(:get_field).with("d5").and_return(*field)
-    end
     context 'when field is not occupied' do
-      let(:field){Field.new("d5")}
       it 'returns false' do
-        expect(board.occupies_piece?).to be false
+        field = Field.new("e4")
+        expect(board.occupies_piece?(field)).to be false
       end
     end
 
-    context 'when field is occupied' do
-      xit 'returns true'do
-        
+    context 'when field is occupied by a piece' do
+      it 'returns true'do
+        field = Field.new("a2")
+        field.piece = Pawn.new(:white, [1, 0])
+        expect(board.occupies_piece?(field)).to be true
       end
     end
   end
+
+  describe '#occuppies_cp_piece?' do
+    context 'when the field is occupied by a piec of the ccurrent player' do
+      it 'returns true' do
+        field = Field.new("a2")
+        field.piece = Pawn.new(:white, [1, 0])
+        current_player = double("Player", color: :white)
+        expect(board.occupies_cp_piece?(field, current_player)).to be true
+      end
+    end
+
+    context 'when the field is occupied by a piece of the opponent' do
+      it 'returns false' do
+        field = Field.new("a7")
+        field.piece = Pawn.new(:black, [6, 0])
+        current_player = double("Player", color: :white)
+        expect(board.occupies_cp_piece?(field, current_player)).to be false
+      end
+    end
+
+    context 'when the field is not occupied' do
+      it 'returns false' do
+        field = Field.new("e4")
+        current_player = double("Player", color: :black)
+        expect(board.occupies_cp_piece?(field, current_player)).to be false
+      end
+    end
+  end
+
+  describe '#end_destination_reachable?' do
+    
+  end
+
+
 end
