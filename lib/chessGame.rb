@@ -24,12 +24,9 @@ attr_accessor :chess_board, :player1, :player2, :current_player
     end
   end
 
+  private
   def victory?
-    # king in checkmate
-    # king captured
-    self.chess_board.check?
-    self.chess_board.check_mate?
-    self.chess_board.king_captured?
+    self.chess_board.victory?
     #if yes: announce winner
       # end-game
     #else: return false
