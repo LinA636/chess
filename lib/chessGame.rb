@@ -2,10 +2,10 @@ require_relative "../lib/player"
 require_relative "../lib/chessBoard"
 
 class ChessGame
-attr_accessor :board, :player1, :player2, :current_player
+attr_accessor :chess_board, :player1, :player2, :current_player
 
   def initialize
-    @board = ChessBoard.new
+    @chess_board = ChessBoard.new
     @player1 = Player.new(get_player_name("Player1"), :white)
     @player2 = Player.new(get_player_name("Player2"), :black)
     @current_player = self.player1
@@ -20,12 +20,19 @@ attr_accessor :board, :player1, :player2, :current_player
     until victory?
       print_beginning_of_turn
       make_move
+      switch_player
     end
   end
 
   def victory?
     # king in checkmate
     # king captured
+    self.chess_board.check?
+    self.chess_board.check_mate?
+    self.chess_board.king_captured?
+    #if yes: announce winner
+      # end-game
+    #else: return false
   end
 
   def print_beginning_of_turn
@@ -35,16 +42,19 @@ attr_accessor :board, :player1, :player2, :current_player
   end
 
   def make_move
-    move_pattern = get_move_pattern
-    validate_move_pattern(move_pattern)
+    fields = get_move_pattern()
+    validate_move_pattern(fields.first, fields.last)
+    self.chess_board.move_piece(fields.first, fields.last)
   end
 
   def get_move_pattern
-    players_move = get_player_input
+    players_move = get_player_input()
     until valid_input_pattern?(players_move)
       players_move = get_player_input
     end
-    players_move
+    start_field = self.chess_board.get_field(players_move[0..1])
+    end_field = self.chess_board.get_field(players_move[2..3])
+    return [start_field, end_field]
   end
 
   def get_player_input
@@ -56,22 +66,19 @@ attr_accessor :board, :player1, :player2, :current_player
     move.match?(/^[a-h][1-8][a-h][1-8]$/)
   end
 
-  def validate_move_pattern(move_pattern)
-    start_destination = move_pattern[0..1]
-    end_destination = move_pattern[2..3]
-    occupies_cp_piece?(start_destination)
+  def validate_move_pattern(start_field, end_field)
+    unless self.chess_board.valid_start_field?(start_field, self.current_player)
+      make_move()
+    end
+    unless self.chess_board.end_destination_reachable?(start_field, end_field)
+      make_move()
+    end
   end
 
-  def occupies_cp_piece? #cp: current_player
-    
+  def switch_player
+
   end
 
-  def valid_move?
-    # start_field actually occupies current_players piece?
-    # destination field does not occupy current_players piece?
-    # destination_field valid move for chosen piece?
-    # no other piece in the way of chosen piece? (except for knight)
-  end
 =begin  
   #start_game
     # Therefore print the Explanations: How to

@@ -10,14 +10,13 @@ require "matrix"
 class ChessBoard
   attr_accessor :board
   def initialize
-    mapping = get_letter_number_hash
-    @board = Matrix.build(8,8).each_with_index {|row, col| Field.new("#{mapping[col]}#{8-row}")} 
+    @board = Matrix.build(8,8).each_with_index {|el, row, col| Field.new("#{get_number_to_letter_hash["#{col}"]}#{8-row}")} 
     setup_board
   end
 
-  def get_letter_number_hash
+  def get_number_to_letter_hash
     letters = ('a'..'h').to_a
-    numbers = (0..7).to_a
+    numbers = (0..7).to_a.map(&:to_s)
     numbers.zip(letters).to_h
   end
 
@@ -77,6 +76,14 @@ class ChessBoard
       puts "  ---------------------------------"
     end
     puts "    a   b   c   d   e   f   g   h  "
+  end
+
+  def occuppies_piece?(destination)
+    !get_field(destination).piece.nil?
+  end
+
+  def get_field(destination)
+    self.board.select {|field| field.id == destination}
   end
 
   def checkmate?(color)

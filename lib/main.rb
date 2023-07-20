@@ -30,11 +30,8 @@ def start_resume_game
   end
 end
 
-end
 
 def get_game_mode
-  # make player decide to start new game or resume old one
-  # or save or exit game
   puts "Do you want to start a new game ('start') or resume a previous started one ('resume')?: " 
   input = gets.chomp.downcase
   until ["start", "resume", "exit"].include?(input)
@@ -57,6 +54,7 @@ end
 def end_game
   exit
 end
+
 
 
 print_explanations
