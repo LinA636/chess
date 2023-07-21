@@ -19,15 +19,19 @@ class Pawn < Piece
 
   def next_movements
     unless first_move_done
-      color == :white ? super(MOVEMENTS_WHITE) : super(MOVEMENTS_BLACK)
+      self.color == :white ? super(MOVEMENTS_WHITE) : super(MOVEMENTS_BLACK)
     else
-      color == :white ? super(MOVEMENTS_WHITE.first) : super(MOVEMENTS_BLACK.first)
+      self.color == :white ? super(MOVEMENTS_WHITE.first) : super(MOVEMENTS_BLACK.first)
     end
   end
 
   def taking_movements
-    movements = (color == :white) ? TAKING_MOVEMENTS_WHITE : TAKING_MOVEMENTS_BLACK
+    movements = (self.color == :white) ? TAKING_MOVEMENTS_WHITE : TAKING_MOVEMENTS_BLACK
     movements.map{|arr| [self.position[0]+arr[0], self.position[1]+arr[1]]}
               .keep_if{|arr| position_on_board?(arr)}
+  end
+
+  def chosen_destination_reachable?(end_field)
+    super(next_movements + taking_movements, end_field)
   end
 end

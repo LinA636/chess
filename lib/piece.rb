@@ -1,3 +1,4 @@
+require_relative "../lib/field"
 class Piece
   attr_accessor :children, :parent, :position, :captured
   attr_reader :symbol, :color
@@ -27,5 +28,9 @@ class Piece
 
   def to_s
     self.symbol
+  end
+
+  def chosen_destination_reachable?(movements, end_field)
+    return movements.include?(end_field.position)
   end
 end

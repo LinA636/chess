@@ -94,4 +94,54 @@ describe Pawn do
       end
     end
   end
+
+  describe '#chosen_destination_reachable?' do
+    subject(:white_pawn) {described_class.new(:white, [1, 3]) }
+    subject(:black_pawn) { described_class.new(:black, [6, 4]) }
+    context "when the pawn is white" do
+      context 'when the destination is avalid next_movement' do
+        it "returns true" do
+          end_field = Field.new("c5", [0,3])
+          expect(white_pawn.chosen_destination_reachable?(end_field)).to be true
+        end
+      end
+      
+      context 'when the destination is a valid taking_movement' do
+        it 'retruns true' do
+          end_field = Field.new("c5", [0,2])
+          expect(white_pawn.chosen_destination_reachable?(end_field)).to be true
+        end
+      end   
+
+      context "when the destination is an invalid movement" do
+        it "returns false" do
+          end_field = Field.new("e7", [0,0])
+          expect(white_pawn.chosen_destination_reachable?(end_field)).to be false
+        end
+      end   
+    end
+
+    context 'when the pawn is black' do
+      context "when the destination is a valid next_movement" do
+        it "returns true" do
+          end_field = Field.new("d3", [7,4])
+          expect(black_pawn.chosen_destination_reachable?(end_field)).to be true
+        end
+      end
+
+      context 'when the destination is a valid taking_movement' do
+        it 'retruns true' do
+          end_field = Field.new("c5", [7,5])
+          expect(black_pawn.chosen_destination_reachable?(end_field)).to be true
+        end
+      end
+
+      context "when the destination is an invalid taking movement" do
+        it "returns false" do
+          end_field = Field.new("d1",[0,0]) 
+          expect(white_pawn.chosen_destination_reachable?(end_field)).to be false
+        end
+      end
+    end
+  end
 end

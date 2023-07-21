@@ -44,4 +44,21 @@ describe Knight do
       end
     end
   end
+
+  describe '#chosen_destination_reachable?' do
+    subject(:piece) {described_class.new(:white, [1, 3]) }
+    context 'when the destination is avalid next_movement' do
+      it "returns true" do
+        end_field = Field.new("c5", [3,4])
+        expect(piece.chosen_destination_reachable?(end_field)).to be true
+      end
+    end
+
+    context "when the destination is an invalid movement" do
+      it "returns false" do
+        end_field = Field.new("e7", [1,4])
+        expect(piece.chosen_destination_reachable?(end_field)).to be false
+      end
+    end
+  end
 end

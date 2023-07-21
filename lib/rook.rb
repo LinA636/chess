@@ -20,4 +20,8 @@ class Rook < Piece
     super(MOVEMENTS)
   end
 
+  def chosen_destination_reachable?(end_field)
+    super(next_movements, end_field)
+  end
+
 end

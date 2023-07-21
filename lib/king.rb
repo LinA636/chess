@@ -16,9 +16,12 @@ class King < Piece
     @first_move_done = false
   end
 
-
   def next_movements
     super(MOVEMENTS)
+  end
+
+  def chosen_destination_reachable?(end_field)
+    super(next_movements, end_field)
   end
 
 end
