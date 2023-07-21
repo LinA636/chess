@@ -1,9 +1,10 @@
 class Field
   attr_accessor :piece
-  attr_reader :id
+  attr_reader :id, :position
 
-  def initialize(id)
+  def initialize(id, position)
     @id = id
+    @position = position
     @piece = nil
   end
 

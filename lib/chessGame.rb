@@ -26,10 +26,11 @@ attr_accessor :chess_board, :player1, :player2, :current_player
 
   private
   def victory?
-    self.chess_board.victory?
-    #if yes: announce winner
-      # end-game
-    #else: return false
+    if self.chess_board.victory?
+      end_game
+    else
+      false
+    end
   end
 
   def print_beginning_of_turn
@@ -73,53 +74,17 @@ attr_accessor :chess_board, :player1, :player2, :current_player
   end
 
   def switch_player
-
+    if self.current_player == self.player1
+      self.current_player = self.player2
+    else
+      self.current_player = self.player1
+    end
   end
 
-=begin  
-  #start_game
-    # Therefore print the Explanations: How to
-      - save the game -> always possible
-      - exit the game -> always possible
-      - start a new game -> only at beginning
-      - resume an old game -> only at beginning
+  def end_game
+    exit
+  end
 
-    # Make player decide to start a new game or (if available) resume an old game
-
-    (each turn will be framed by a straight line in  the command line!)
-    
-    first turn:
-      # print straight line
-      # print board
-      # print name of current_player
-      # make move
-          # make current_player put in the move (feg a1a2)
-          - make two variables: start_pos and destination
-          # check if choosen field contains players piece
-              if not: # make move
-          # check if destination is valid
-                - valid move for chosen piece? (is one of the children?)
-                - for pawn: is movement or taking?
-                - destination does not occupy one of the current_players pieces.
-          # check if a piece of opponent is going to be captured.
-                if yes: # mark captured piece as captured
-                        if piece is king: # announce winner
-          # occupy that field with new piece
-          # reset old field to default state
-          # check board for any kings in 'check'
-              if yes: # announce check
-          # check board for any kings in 'check mate'
-                if yes: # announce check-mate
-                        # announce winner
-          # switch player
-      # check for victory - king captured
-                          - king in check-mate
-                if victory: #end game
-                if not:
-    second turn:
-      same procedure
-                
-=end
 
 
 end
