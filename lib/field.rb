@@ -12,4 +12,15 @@ class Field
     self.piece.nil? ? " " : self.piece
   end
 
+  def occupies_piece?
+    !self.piece.nil?
+  end
+
+  def occupies_cp_piece?(current_player) #cp: current_player
+    unless self.piece.nil?
+      return self.piece.color == current_player.color
+    end
+    return false
+  end
+
 end

@@ -10,7 +10,7 @@ require "matrix"
 class ChessBoard
   attr_accessor :board
   def initialize
-    @board = Matrix.build(8,8).each_with_index {|el, row, col| Field.new("#{get_number_to_letter_hash["#{col}"]}#{8-row}")} 
+    @board = Matrix.build(8,8).each_with_index {|el, row, col| Field.new("#{get_number_to_letter_hash["#{col}"]}#{8-row}", [row,col])} 
     setup_board
   end
 
@@ -27,33 +27,24 @@ class ChessBoard
     puts "    a   b   c   d   e   f   g   h  "
   end
 
-  def occupies_piece?(field)
-    !field.piece.nil?
-  end
-
   def valid_start_field?(start_field, current_player)
-    unless occupies_cp_piece?(start_field, current_player)
+    unless start_field.occupies_cp_piece?(current_player)
       puts "Pick one of YOUR figures: "
       return false
     end
     return true
   end
 
-  def occupies_cp_piece?(field, current_player) #cp: current_player
-    unless field.piece.nil?
-      return field.piece.color == current_player.color
-    end
-    return false
-  end
-
-  def end_destination_reachable?(end_destination)
+  def valid_move?(start_field, end_field)
     #check if end_destination if reachable by chosen piece (are other pieces in the way?)
     #if not: Pick other desttination!
+    moving_piece = start_field.piece
+    return moving_piece.clear_way?(moving_piece, end_field)
   end
 
-  def move_piece(start_field, end_field)
-    if occuppies_piece?(end_field)
-      unless occuppies_cp_piece?(end_field)
+  def move_piece(start_field, end_field, current_player)
+    if start_field.occuppies_piece?
+      unless start_field.occuppies_cp_piece?(current_player)
         #update field
         #mark piece as captured
       end
