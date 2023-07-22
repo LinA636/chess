@@ -144,4 +144,65 @@ describe Pawn do
       end
     end
   end
+
+  describe "#get_field_positions_on_way" do
+    subject(:white_pawn) { described_class.new(:white, [6, 3]) }
+    subject(:black_pawn) { described_class.new(:black, [1, 3]) }
+
+    context "for a white pawn" do
+      before do
+        allow(white_pawn).to receive(:next_movements).and_return([[5, 3], [4, 3]])
+      end
+
+      context 'when destination is included in next_movements' do
+        it "returns an array with the field positions between the current field and the end field when moving two steps" do
+          white_pawn.first_move_done = false
+          destination_field = Field.new("a1", [4, 3])
+          # The end field is [4, 3], and the positions between [4, 3] and [6, 3] are [5, 3]
+          expect(white_pawn.get_field_positions_on_way(destination_field)).to eq([[5, 3]])
+        end
+
+        it "returns an empty array when moving one steps" do
+          white_pawn.first_move_done = true
+          destination_field = Field.new("a1", [5, 3])
+          # The end field is [5, 3], but there are no positions between [6, 3] and [5, 3]
+          expect(white_pawn.get_field_positions_on_way(destination_field)).to eq([])
+        end
+      end
+    end
+
+
+    context "for a black pawn" do
+      before do
+        allow(black_pawn).to receive(:next_movements).and_return([[2, 3], [3, 3]])
+      end
+
+      it "returns an array with the field positions between the current field and the end field when moving two steps" do
+        black_pawn.first_move_done = false
+        destination_field = Field.new("a1", [3, 3])
+        # The end field is [3, 3], and the positions between [1, 3] and [3, 3] are [2, 3]
+        expect(black_pawn.get_field_positions_on_way(destination_field)).to eq([[2, 3]])
+      end
+
+      it "returns an empty array when moving two steps" do
+        black_pawn.first_move_done = true
+        destination_field = Field.new("a1", [2, 3])
+        # The end field is [1, 3], but there are no positions between [1, 3] and [2, 3]
+        expect(black_pawn.get_field_positions_on_way(destination_field)).to eq([])
+      end
+    end
+
+    context "when the end field is not part of next movements" do
+      it "returns nil" do
+        # Set up the white pawn for the test
+        white_pawn.first_move_done = false
+        allow(white_pawn).to receive(:next_movements).and_return([[5, 3], [4, 3]])
+        allow(white_pawn).to receive(:taking_movements).and_return([])
+        destination_field = Field.new("a1", [2, 3])
+        # The end field is [2, 3], but it is not reachable from the current position
+        expect(white_pawn.get_field_positions_on_way(destination_field)).to eq(nil)
+      end
+    end
+  end
+
 end

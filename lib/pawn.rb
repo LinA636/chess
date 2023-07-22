@@ -1,4 +1,5 @@
 require_relative "../lib/piece"
+
 class Pawn < Piece
   attr_accessor :first_move_done
 
@@ -33,5 +34,17 @@ class Pawn < Piece
 
   def chosen_destination_reachable?(end_field)
     super(next_movements + taking_movements, end_field)
+  end
+
+  def get_field_positions_on_way(end_field)
+    return nil unless chosen_destination_reachable?(end_field)
+    # returns the field positions between current field and end_field
+    row_start_field = self.position.first
+    row_end_field = end_field.position.first
+    if self.color == :white
+      next_movements.select {|array| (row_end_field < array.first && array.first < row_start_field)}
+    elsif self.color == :black
+      next_movements.select {|array| (row_start_field < array.first && array.first < row_end_field)}
+    end
   end
 end
