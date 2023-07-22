@@ -63,4 +63,56 @@ describe Rook do
       end
     end
   end
+
+  describe "#get_field_positions_on_way" do
+    subject(:rook) { described_class.new(:white, [3,2]) }
+    
+    context "when the rook is moving horizontally" do
+      it "returns an array with the field positions between the current field and the end field, when destination is left of start" do
+        destination_field = Field.new("a1", [3, 0])
+        # The end field is [3,0], and the positions between [3,2] and [3,0] are [3,1]
+        expect(rook.get_field_positions_on_way(destination_field)).to eq([[3,1]])
+      end
+
+      it "returns an array with the field positions between the current field and the end field, when destination underneath start" do
+        destination_field = Field.new("a2", [3,6])
+        # The end field is [3,6], and the positions between [3, 2] and [3,6] are [3,3], [3,4], [3,5]
+        expect(rook.get_field_positions_on_way(destination_field)).to eq([[3,3], [3,4], [3,5]])
+      end
+
+      it "returns an empty array when there are no positions between the current field and the end field" do
+        destination_field = Field.new("a2", [3,3])
+        # The end field is [3, 3], but there are no positions between [3,3] and [3,2]
+        expect(rook.get_field_positions_on_way(destination_field)).to eq([])
+      end
+    end
+
+    context "when the rook is moving vertically" do
+      it "returns an array with the field positions between the current field and the end field, when destination above start" do
+        destination_field = Field.new("a1", [0, 2])
+        # The end field is [0, 2], and the positions between [3,2] and [0, 2] are [2,2], [1,2]
+        expect(rook.get_field_positions_on_way(destination_field)).to eq([[2,2], [1,2]])
+      end
+
+      it "returns an array with the field positions between the current field and the end field, when destination underneath start" do
+        destination_field = Field.new("a2", [7, 2])
+        # The end field is [7, 2], and the positions between [3, 2] and [7, 2] are [4, 2], [5, 2], [6, 2]
+        expect(rook.get_field_positions_on_way(destination_field)).to eq([[4, 2], [5, 2], [6, 2]])
+      end
+
+      it "returns an empty array when there are no positions between the current field and the end field" do
+        destination_field = Field.new("a2", [2,2])
+        # The end field is [2,2], but there are no positions between [3, 2] and [2,2]
+        expect(rook.get_field_positions_on_way(destination_field)).to eq([])
+      end
+    end
+
+    context "when the end field is not reachable" do
+      it "returns nil for an unreachable end field" do
+        destination_field = Field.new("a2", [7,7])
+        # The end field is [5, 5], but it is not reachable from the current position
+        expect(rook.get_field_positions_on_way(destination_field)).to be_nil
+      end
+    end
+  end
 end
