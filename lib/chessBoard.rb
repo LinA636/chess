@@ -36,10 +36,24 @@ class ChessBoard
   end
 
   def valid_move?(start_field, end_field)
-    #check if end_destination if reachable by chosen piece (are other pieces in the way?)
-    #if not: Pick other desttination!
+    # it is a valid move if
+      # - the destination is reachable
+      # - no other piece is in the way (except for the knight)
+      # - if its a taking the field must be occupied by an opponents piece
     moving_piece = start_field.piece
-    return moving_piece.clear_way?(moving_piece, end_field)
+    moving_piece.chosen_destination_reachable?(end_field)
+    clear_way?(moving_piece.get_field_positions_on_way(end_field))
+    valid_taking?(end_field)
+  end
+
+  def clear_way?(positions_inbetween)
+    fields_inbetween = self.board.select {|field| positions_inbetween.include?(field.position)}
+    return fields_inbetween.all?{|field| !field.occupies_piece?}
+  end
+
+  def valid_taking?(end_field)
+    # make sure destination field is occupied by opponent
+    (end_field.occupies_piece? && !end_field.occupies_cp_piece?)
   end
 
   def move_piece(start_field, end_field, current_player)
