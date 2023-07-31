@@ -10,8 +10,18 @@ require "matrix"
 class ChessBoard
   attr_accessor :board
   def initialize
-    @board = Matrix.build(8,8).each_with_index {|el, row, col| Field.new("#{get_number_to_letter_hash["#{col}"]}#{8-row}", [row,col])} 
+    @board = Matrix.build(8,8).each_with_index {|row_col| initialize_field(row_col)} 
     setup_board
+  end
+
+  def initialize_field(row_col)
+    row = row_col.first
+    col = row_col.last
+    numbers_hash = get_number_to_letter_hash()
+    letter = numbers_hash["#{col}"]
+    id = "#{letter}#{8-row}"
+    position = [row,col]
+    Field.new(id, position)
   end
 
   def print_board
@@ -74,11 +84,17 @@ class ChessBoard
     king_captured?
   end
 
+  def get_field(destination_pattern)
+    self.board.select{|field| field.id == destination_pattern}.first
+  end
+
   private
   def get_number_to_letter_hash
+    # converts the number 0..7 to the letters a..h
     letters = ('a'..'h').to_a
     numbers = (0..7).to_a.map(&:to_s)
-    numbers.zip(letters).to_h
+    numbers_hash = numbers.zip(letters).to_h
+    numbers_hash
   end
 
   def setup_board
@@ -124,10 +140,6 @@ class ChessBoard
   def valid_move?(from, to, color)
     # Check if the move is valid for the specified color
     # ...
-  end
-
-  def get_field(destination_pattern)
-    self.board.select {|field| field.id == destination_pattern}
   end
 
   def checkmate?

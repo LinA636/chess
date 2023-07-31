@@ -25,10 +25,14 @@ class Field
   end
 
   def occupies_cp_piece?(current_player) #cp: current_player
-    unless self.piece.nil?
+    unless empty?()
       return self.piece.color == current_player.color
     end
     return false
+  end
+
+  def empty?
+    self.piece.nil?
   end
 
 end

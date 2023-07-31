@@ -12,7 +12,7 @@ attr_accessor :chess_board, :player1, :player2, :current_player
   end
 
   def get_player_name(player)
-    puts "#{player} type your name: "
+    print "\n#{player} type your name: "
     gets.chomp
   end
 
@@ -35,28 +35,38 @@ attr_accessor :chess_board, :player1, :player2, :current_player
 
   def print_beginning_of_turn
     puts "_______________________________________"
-    self.board.print_board
+    self.chess_board.print_board
     puts "#{self.current_player.name}, it's your turn:"
   end
 
   def make_move
-    fields = get_move_pattern()
+    fields = get_start_end_field()
     validate_move_pattern(fields.first, fields.last)
-    self.chess_board.move_piece(fields.first, fields.last)
+    self.chess_board.move_piece(fields.first, fields.last, self.current_player)
+  end
+
+  def get_start_end_field()
+    players_move = get_move_pattern()
+    start_field = self.chess_board.get_field(players_move[0..1])
+    end_field = self.chess_board.get_field(players_move[2..3])
+    until !start_field.empty? && !end_field.empty?
+      players_move = get_move_pattern()
+      start_field = self.chess_board.get_field(players_move[0..1])
+      end_field = self.chess_board.get_field(players_move[2..3])
+    end
+    [start_field, end_field]
   end
 
   def get_move_pattern
     players_move = get_player_input()
     until valid_input_pattern?(players_move)
-      players_move = get_player_input
+      players_move = get_player_input()
     end
-    start_field = self.chess_board.get_field(players_move[0..1])
-    end_field = self.chess_board.get_field(players_move[2..3])
-    return [start_field, end_field]
+    players_move
   end
 
   def get_player_input
-    puts "Make your move (for e.g. a2a4): "
+    print "Make your move (for e.g. a2a4): "
     gets.chomp.downcase
   end
 
@@ -65,10 +75,7 @@ attr_accessor :chess_board, :player1, :player2, :current_player
   end
 
   def validate_move_pattern(start_field, end_field)
-    unless self.chess_board.valid_start_field?(start_field, self.current_player)
-      make_move()
-    end
-    unless self.chess_board.end_destination_reachable?(start_field, end_field)
+    unless (self.chess_board.valid_start_field?(start_field, self.current_player) || self.chess_board.valid_move?(start_field, end_field))
       make_move()
     end
   end
