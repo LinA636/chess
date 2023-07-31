@@ -39,6 +39,9 @@ describe Field do
 
     context 'when the field is occupied by a piece of the opponent' do
       let(:piece){double('Piece', color: :black)}
+      before do
+        field_occupies_cp.piece = piece
+      end
       it 'returns false' do
         expect(field_occupies_cp.occupies_cp_piece?(current_player)).to be false
       end
@@ -47,6 +50,39 @@ describe Field do
     context 'when the field is empty' do
       it 'returns false' do
         expect(field_occupies_cp.occupies_cp_piece?(current_player)).to be false
+      end
+    end
+  end
+
+  describe '#occuppies_opponent_piece?' do
+    subject(:field_occupies_opponent){described_class.new("a0",[0,0])}
+    let(:white_player){double('Player', color: :white)}
+    let(:black_player){double('Player', color: :black)}
+    let(:current_player){white_player}
+    context 'when the field is occupied by a piece of the current player' do
+      let(:piece){double('Piece', color: :white)}
+      before do
+        field_occupies_opponent.piece = piece
+      end
+
+      it 'returns false' do        
+        expect(field_occupies_opponent.occupies_opponent_piece?(current_player)).to be false
+      end
+    end
+
+    context 'when the field is occupied by a piece of the opponent' do
+      let(:piece){double('Piece', color: :black)}
+      before do
+        field_occupies_opponent.piece = piece
+      end
+      it 'returns true' do
+        expect(field_occupies_opponent.occupies_opponent_piece?(current_player)).to be true
+      end
+    end
+
+    context 'when the field is empty' do
+      it 'returns false' do
+        expect(field_occupies_opponent.occupies_opponent_piece?(current_player)).to be false
       end
     end
   end

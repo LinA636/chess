@@ -31,6 +31,13 @@ class Field
     return false
   end
 
+  def occupies_opponent_piece?(current_player)
+    unless empty?()
+      return self.piece.color != current_player.color
+    end
+    return false
+  end
+
   def empty?
     self.piece.nil?
   end
