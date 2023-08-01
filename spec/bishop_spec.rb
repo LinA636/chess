@@ -61,4 +61,48 @@ describe Bishop do
       end
     end   
   end
+
+  describe "#get_field_positions_on_way" do
+    subject(:bishop) { described_class.new(:white, [4,5]) }
+
+    context "when bishop is moving diagonally upwards to the left" do
+      it "returns an array with the field position between the current field and the end field" do
+        destination_field = Field.new("a1", [1,2])
+        # The end field is [1,2], and the positions between [4,5] and [1,2] are [2,3] [3,4]
+        expect(bishop.get_field_positions_on_way(destination_field)).to match_array([[2,3] ,[3,4]])
+      end
+    end
+
+    context "when bishop is moving diagonally upwards to the right" do
+      it "returns an array with the field position between the current field and the end field" do
+        destination_field = Field.new("a1", [2,7])
+        # The end field is [2,7], and the positions between [4,5] and [2,7] are [3,6]
+        expect(bishop.get_field_positions_on_way(destination_field)).to match_array([[3,6]])
+      end
+    end
+    
+    context "when bishop is moving diagonally downwards to the left" do
+      it "returns an array with the field position between the current field and the end field" do
+        destination_field = Field.new("a1", [7,2])
+        # The end field is [7,2], and the positions between [4,5] and [7,2] are [5,4], [6,3]
+        expect(bishop.get_field_positions_on_way(destination_field)).to match_array([[5,4], [6,3]])
+      end
+    end  
+    
+    context "when bishop is moving diagonally downwards to the right" do
+      it "returns an array with the field position between the current field and the end field" do
+        destination_field = Field.new("a1", [6,7])
+        # The end field is [6,7], and the positions between [4,5] and [6,7] are [5,6]
+        expect(bishop.get_field_positions_on_way(destination_field)).to match_array([[5,6]])
+      end
+    end 
+
+    context "when the end field is not reachable" do
+      it "returns nil for an unreachable end field" do
+        destination_field = Field.new("a2", [7,7])
+        # The end field is [7,7], but it is not reachable from the current position
+        expect(bishop.get_field_positions_on_way(destination_field)).to be_nil
+      end
+    end
+  end
 end

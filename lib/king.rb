@@ -24,4 +24,9 @@ class King < Piece
     super(next_movements, end_field)
   end
 
+  def get_field_positions_on_way(end_field)
+    return nil unless chosen_destination_reachable?(end_field)
+    []
+  end
+
 end

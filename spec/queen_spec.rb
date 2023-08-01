@@ -64,4 +64,82 @@ describe Queen do
     end
   end
 
+  describe '#get_field_positions_on_way' do
+    describe "#get_field_positions_on_way" do
+      subject(:queen) { described_class.new(:white, [3,3]) }
+      
+      context "when queen is moving diagonally upwards to the left" do
+        it "returns an array with the field position between the current field and the end field" do
+          destination_field = Field.new("a1", [1,1])
+          # The end field is [1,1], and the positions between [3,3] and [1,1] are [2,2]
+          expect(queen.get_field_positions_on_way(destination_field)).to match_array([[2,2]])
+        end
+      end
+
+      context "when queen is moving upwards" do
+        it "returns an array with the field position between the current field and the end field" do
+          destination_field = Field.new("a1", [0,3])
+          # The end field is [0,3], and the positions between [3,3] and [0,3] are [1,3] [2,3]
+          expect(queen.get_field_positions_on_way(destination_field)).to match_array([[2,3] ,[1,3]])
+        end
+      end
+  
+      context "when queen is moving diagonally upwards to the right" do
+        it "returns an array with the field position between the current field and the end field" do
+          destination_field = Field.new("a1", [1,5])
+          # The end field is [1,5], and the positions between [3,3] and [1,5] are [2,4]
+          expect(queen.get_field_positions_on_way(destination_field)).to match_array([[2,4]])
+        end
+      end
+
+      context "when queen is moving to the right" do
+        it "returns an array with the field position between the current field and the end field" do
+          destination_field = Field.new("a1", [3,6])
+          # The end field is [3,6], and the positions between [3,3] and [3,6] are [3,5] [3,4]
+          expect(queen.get_field_positions_on_way(destination_field)).to match_array([[3,5] ,[3,4]])
+        end
+      end
+      
+      context "when queen is moving diagonally downwards to the right" do
+        it "returns an array with the field position between the current field and the end field" do
+          destination_field = Field.new("a1", [6,6])
+          # The end field is [6,6], and the positions between [3,3] and [6,6] are [4,4] [5,5]
+          expect(queen.get_field_positions_on_way(destination_field)).to match_array([[4,4] ,[5,5]])
+        end
+      end 
+  
+      context "when queen is moving downwards" do
+        it "returns an array with the field position between the current field and the end field" do
+          destination_field = Field.new("a1", [5,3])
+          # The end field is [5,3], and the positions between [3,3] and [5,3] are [4,3]
+          expect(queen.get_field_positions_on_way(destination_field)).to match_array([[4,3]])
+        end
+      end
+
+      context "when queen is moving diagonally downwards to the left" do
+        it "returns an array with the field position between the current field and the end field" do
+          destination_field = Field.new("a1", [5,1])
+          # The end field is [3,3], and the positions between [3,3] and [5,1] are [4,2]
+          expect(queen.get_field_positions_on_way(destination_field)).to match_array([[4,2]])
+        end
+      end  
+
+      context "when queen is moving downwards" do
+        it "returns an array with the field position between the current field and the end field" do
+          destination_field = Field.new("a1", [3,1])
+          # The end field is [3,3], and the positions between [3,3] and [3,1] are [2,3] [3,4]
+          expect(queen.get_field_positions_on_way(destination_field)).to match_array([[3,2]])
+        end
+      end
+      
+      context "when the end field is not reachable" do
+        it "returns nil for an unreachable end field" do
+          destination_field = Field.new("a2", [75])
+          # The end field is [7,5], but it is not reachable from the current position
+          expect(queen.get_field_positions_on_way(destination_field)).to be_nil
+        end
+      end
+    end
+  end
+
 end
