@@ -11,7 +11,7 @@ class ChessBoard
   attr_accessor :board
   def initialize
     @board = Matrix.build(8,8).each_with_index {|row_col| initialize_field(row_col)} 
-    setup_board
+    setup_board()
   end
 
   def initialize_field(row_col)
@@ -37,6 +37,24 @@ class ChessBoard
     puts "    a   b   c   d   e   f   g   h  "
   end
 
+  def valid_move?(start_field, end_field, current_player)
+    # it is a valid move if
+      # - the start_field is occupied by own piece
+      # - the destination is reachable
+      # - no other piece is in the way (except for the knight)
+      # - if its a taking the field must be occupied by an opponents piece
+    if valid_start_field?(start_field, current_player)
+      moving_piece = start_field.piece
+      if (moving_piece.chosen_destination_reachable?(end_field) && clear_way?(moving_piece.get_field_positions_on_way(end_field)))
+        if valid_end_field?(end_field, current_player)
+          return true
+        end
+      end
+    end
+    
+    false
+  end
+
   def valid_start_field?(start_field, current_player)
     unless start_field.occupies_cp_piece?(current_player)
       puts "Pick one of YOUR figures: "
@@ -45,25 +63,14 @@ class ChessBoard
     return true
   end
 
-  def valid_move?(start_field, end_field)
-    # it is a valid move if
-      # - the destination is reachable
-      # - no other piece is in the way (except for the knight)
-      # - if its a taking the field must be occupied by an opponents piece
-    moving_piece = start_field.piece
-    moving_piece.chosen_destination_reachable?(end_field)
-    clear_way?(moving_piece.get_field_positions_on_way(end_field))
-    valid_taking?(end_field)
-  end
-
   def clear_way?(positions_inbetween)
     fields_inbetween = self.board.select {|field| positions_inbetween.include?(field.position)}
     return fields_inbetween.all?{|field| !field.occupies_piece?}
   end
 
-  def valid_taking?(end_field)
-    # make sure destination field is occupied by opponent
-    (end_field.occupies_piece? && !end_field.occupies_cp_piece?)
+  def valid_end_field?(end_field, current_player)
+    # either field is unoccupied or its occupied by the opponent
+    (end_field.occupies_opponent_piece?(current_player) || !end_field.occupies_piece?)
   end
 
   def move_piece(start_field, end_field, current_player)
@@ -88,7 +95,6 @@ class ChessBoard
     self.board.select{|field| field.id == destination_pattern}.first
   end
 
-  private
   def get_number_to_letter_hash
     # converts the number 0..7 to the letters a..h
     letters = ('a'..'h').to_a
@@ -134,11 +140,6 @@ class ChessBoard
 
   def move(from, to)
     # Move the piece on the board
-    # ...
-  end
-
-  def valid_move?(from, to, color)
-    # Check if the move is valid for the specified color
     # ...
   end
 
