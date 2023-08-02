@@ -74,8 +74,8 @@ class ChessBoard
   end
 
   def move_piece(start_field, end_field, current_player)
-    if start_field.occuppies_piece?
-      unless start_field.occuppies_cp_piece?(current_player)
+    if start_field.occupies_piece?
+      unless start_field.occupies_cp_piece?(current_player)
         #update field
         #mark piece as captured
       end
