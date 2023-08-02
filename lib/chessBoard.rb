@@ -27,7 +27,7 @@ class ChessBoard
   def print_board
     puts "  ---------------------------------"
     self.board.row_vectors.each_with_index do |row, row_index|
-      print "#{row_index} "
+      print "#{8-row_index} "
       row.to_a.each do |field|
         print "| #{field.to_s} "
       end
@@ -43,7 +43,8 @@ class ChessBoard
       # - the destination is reachable
       # - no other piece is in the way (except for the knight)
       # - if its a taking the field must be occupied by an opponents piece
-    if valid_start_field?(start_field, current_player)
+    puts "valid_move?"
+      if valid_start_field?(start_field, current_player)
       moving_piece = start_field.piece
       if (moving_piece.chosen_destination_reachable?(end_field) && clear_way?(moving_piece.get_field_positions_on_way(end_field)))
         if valid_end_field?(end_field, current_player)
@@ -55,11 +56,11 @@ class ChessBoard
   end
 
   def valid_start_field?(start_field, current_player)
-    unless start_field.occupies_cp_piece?(current_player)
-      puts "Pick one of YOUR figures: "
-      return false
+    if start_field.occupies_cp_piece?(current_player)
+      return true
     end
-    return true
+    puts "Pick one of YOUR figures: "
+    return false
   end
 
   def clear_way?(positions_inbetween)
