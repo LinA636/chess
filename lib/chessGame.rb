@@ -18,9 +18,9 @@ attr_accessor :chess_board, :player1, :player2, :current_player
 
   def start
     until victory?
-      print_beginning_of_turn
-      make_move
-      switch_player
+      print_beginning_of_turn()
+      make_move()
+      switch_player()
     end
   end
 
@@ -75,7 +75,7 @@ attr_accessor :chess_board, :player1, :player2, :current_player
   end
 
   def validate_move_pattern(start_field, end_field)
-    unless (self.chess_board.valid_start_field?(start_field, self.current_player) || self.chess_board.valid_move?(start_field, end_field))
+    unless self.chess_board.valid_move?(start_field, end_field, self.current_player)
       make_move()
     end
   end
