@@ -51,7 +51,6 @@ class ChessBoard
         end
       end
     end
-    
     false
   end
 
