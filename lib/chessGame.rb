@@ -24,10 +24,9 @@ attr_accessor :chess_board, :player1, :player2, :current_player
     end
   end
 
-  private
   def victory?
     if self.chess_board.victory?
-      end_game
+      end_game()
     else
       false
     end
@@ -46,18 +45,18 @@ attr_accessor :chess_board, :player1, :player2, :current_player
   end
 
   def get_start_end_field()
-    players_move = get_move_pattern()
+    players_move = get_valid_move_pattern()
     start_field = self.chess_board.get_field(players_move[0..1])
     end_field = self.chess_board.get_field(players_move[2..3])
-    until !start_field.empty? && !end_field.empty?
-      players_move = get_move_pattern()
+    while start_field.empty? || end_field.empty?
+      players_move = get_valid_move_pattern()
       start_field = self.chess_board.get_field(players_move[0..1])
       end_field = self.chess_board.get_field(players_move[2..3])
     end
     [start_field, end_field]
   end
 
-  def get_move_pattern
+  def get_valid_move_pattern
     players_move = get_player_input()
     until valid_input_pattern?(players_move)
       players_move = get_player_input()
@@ -91,7 +90,5 @@ attr_accessor :chess_board, :player1, :player2, :current_player
   def end_game
     exit
   end
-
-
 
 end
