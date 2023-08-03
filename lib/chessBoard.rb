@@ -43,8 +43,7 @@ class ChessBoard
       # - the destination is reachable
       # - no other piece is in the way (except for the knight)
       # - if its a taking the field must be occupied by an opponents piece
-    puts "valid_move?"
-      if valid_start_field?(start_field, current_player)
+    if valid_start_field?(start_field, current_player)
       moving_piece = start_field.piece
       if (moving_piece.chosen_destination_reachable?(end_field) && clear_way?(moving_piece.get_field_positions_on_way(end_field)))
         if valid_end_field?(end_field, current_player)
@@ -65,12 +64,20 @@ class ChessBoard
 
   def clear_way?(positions_inbetween)
     fields_inbetween = self.board.select {|field| positions_inbetween.include?(field.position)}
-    return fields_inbetween.all?{|field| !field.occupies_piece?}
+    if fields_inbetween.all?{|field| !field.occupies_piece?}
+      return true
+    end
+    puts "Choose a destination with a clear way: "
+    false
   end
 
   def valid_end_field?(end_field, current_player)
     # either field is unoccupied or its occupied by the opponent
-    (end_field.occupies_opponent_piece?(current_player) || !end_field.occupies_piece?)
+    if (end_field.occupies_opponent_piece?(current_player) || !end_field.occupies_piece?)
+      return true
+    end
+    puts "Choose a valid destination: "
+    false
   end
 
   def move_piece(start_field, end_field, current_player)
@@ -104,8 +111,8 @@ class ChessBoard
   end
 
   def setup_board
-    self.board.row(0).each_with_index{|field, column| field.piece = Pawn.new(:black,[0,column])}
-    self.board.row(1).each_with_index do |field, column| 
+    self.board.row(1).each_with_index{|field, column| field.piece = Pawn.new(:black,[0,column])}
+    self.board.row(0).each_with_index do |field, column| 
       case column
       when 0, 7
         field.piece = Rook.new(:black, [1,column])
@@ -120,7 +127,7 @@ class ChessBoard
       end
     end
 
-    self.board.row(6).each_with_index do |field, column| 
+    self.board.row(7).each_with_index do |field, column| 
       case column
       when 0, 7
         field.piece = Rook.new(:white, [1,column])
@@ -135,7 +142,7 @@ class ChessBoard
       end
     end
     
-    self.board.row(7).each_with_index{|field, column| field.piece = Pawn.new(:white,[7,column])}
+    self.board.row(6).each_with_index{|field, column| field.piece = Pawn.new(:white,[7,column])}
   end
 
   def move(from, to)
