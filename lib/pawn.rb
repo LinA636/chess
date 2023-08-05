@@ -32,6 +32,10 @@ class Pawn < Piece
               .keep_if{|arr| position_on_board?(arr)}
   end
 
+  def taking?(end_field)
+    taking_movements.include?(end_field.position)
+  end
+
   def chosen_destination_reachable?(end_field)
     super(next_movements + taking_movements, end_field)
   end
