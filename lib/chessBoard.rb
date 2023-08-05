@@ -45,7 +45,11 @@ class ChessBoard
       # - if its a taking the field must be occupied by an opponents piece
     if valid_start_field?(start_field, current_player)
       moving_piece = start_field.piece
-      if (moving_piece.chosen_destination_reachable?(end_field) && clear_way?(moving_piece.get_field_positions_on_way(end_field)))
+      fields_inbetween = moving_piece.get_field_positions_on_way(end_field)
+      p moving_piece
+      p end_field
+      p fields_inbetween
+      if (moving_piece.chosen_destination_reachable?(end_field) && clear_way?(fields_inbetween))
         if valid_end_field?(end_field, current_player)
           return true
         end
@@ -98,8 +102,8 @@ class ChessBoard
     king_captured?
   end
 
-  def get_field(destination_pattern)
-    self.board.select{|field| field.id == destination_pattern}.first
+  def get_field(field_id)
+    self.board.select{|field| field.id == field_id}.first
   end
 
   def get_number_to_letter_hash
@@ -111,38 +115,38 @@ class ChessBoard
   end
 
   def setup_board
-    self.board.row(1).each_with_index{|field, column| field.piece = Pawn.new(:black,[0,column])}
+    self.board.row(1).each_with_index{|field, column| field.piece = Pawn.new(:black,field.position)}
     self.board.row(0).each_with_index do |field, column| 
       case column
       when 0, 7
-        field.piece = Rook.new(:black, [1,column])
+        field.piece = Rook.new(:black, field.position)
       when 1, 6
-        field.piece = Knight.new(:black, [1,column])
+        field.piece = Knight.new(:black, field.position)
       when 2, 5
-        field.piece = Bishop.new(:black, [1,column])
+        field.piece = Bishop.new(:black, field.position)
       when 3
-        field.piece = Queen.new(:black, [1,column])
+        field.piece = Queen.new(:black, field.position)
       when 4
-        field.piece = King.new(:black, [1,column])
+        field.piece = King.new(:black, field.position)
       end
     end
 
     self.board.row(7).each_with_index do |field, column| 
       case column
       when 0, 7
-        field.piece = Rook.new(:white, [1,column])
+        field.piece = Rook.new(:white, field.position)
       when 1, 6
-        field.piece = Knight.new(:white, [1,column])
+        field.piece = Knight.new(:white, field.position)
       when 2, 5
-        field.piece = Bishop.new(:white, [1,column])
+        field.piece = Bishop.new(:white, field.position)
       when 3
-        field.piece = Queen.new(:white, [1,column])
+        field.piece = Queen.new(:white, field.position)
       when 4
-        field.piece = King.new(:white, [1,column])
+        field.piece = King.new(:white, field.position)
       end
     end
     
-    self.board.row(6).each_with_index{|field, column| field.piece = Pawn.new(:white,[7,column])}
+    self.board.row(6).each_with_index{|field, column| field.piece = Pawn.new(:white, field.position)}
   end
 
   def move(from, to)
