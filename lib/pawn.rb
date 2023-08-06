@@ -46,7 +46,7 @@ class Pawn < Piece
     row_start_field = self.position.first
     row_end_field = end_field.position.first
     if self.color == :white
-      next_movements.select {|array| (row_end_field > array.first && array.first > row_start_field)}
+      next_movements.select {|array| (row_start_field > array.first && array.first > row_end_field)}
     elsif self.color == :black
       next_movements.select {|array| (row_start_field < array.first && array.first < row_end_field)}
     end

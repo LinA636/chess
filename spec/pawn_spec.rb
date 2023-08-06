@@ -95,6 +95,23 @@ describe Pawn do
     end
   end
 
+  describe '#taking?' do
+    subject(:pawn_taking){described_class.new(:white, [6,2])}
+    context 'when end_field is included in taking_movements' do
+      let(:end_field){double('Field', position: [5,1])}
+      it 'returns true' do
+        expect(pawn_taking.taking?(end_field)).to be true
+      end
+    end
+
+    context 'when end_field is not included in taking_movements' do
+      let(:end_field){double('Field', position: [5,2])}
+      it 'returns false' do
+        expect(pawn_taking.taking?(end_field)).to be false
+      end
+    end
+  end
+
   describe '#chosen_destination_reachable?' do
     subject(:white_pawn) {described_class.new(:white, [1, 3]) }
     subject(:black_pawn) { described_class.new(:black, [6, 4]) }
