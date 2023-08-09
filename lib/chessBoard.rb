@@ -187,11 +187,6 @@ class ChessBoard
     self.board.row(6).each_with_index{|field, column| field.piece = Pawn.new(:white, field.position)}
   end
 
-  def move(from, to)
-    # Move the piece on the board
-    # ...
-  end
-
   def checkmate?
     
   end
@@ -201,6 +196,6 @@ class ChessBoard
   end
 
   def king_captured?
-
+    (!captured_white_pieces.select{|piece| piece.instance_of?(King)}.empty? || !captured_black_pieces.select{|piece| piece.instance_of?(King)}.empty?)
   end
 end
