@@ -69,8 +69,8 @@ attr_accessor :chess_board, :player1, :player2, :current_player
     gets.chomp.downcase
   end
 
-  def valid_input_pattern?(move)
-    move.match?(/^[a-h][1-8][a-h][1-8]$/)
+  def valid_input_pattern?(pattern)
+    pattern.match?(/^[a-h][1-8][a-h][1-8]$/)
   end
 
   def validate_move_pattern(start_field, end_field)

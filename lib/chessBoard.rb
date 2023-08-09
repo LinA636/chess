@@ -8,9 +8,11 @@ require_relative "../lib/king"
 require "matrix"
 
 class ChessBoard
-  attr_accessor :board
+  attr_accessor :board, :captured_white_pieces, :captured_black_pieces
   def initialize
     @board = Matrix.build(8,8).each_with_index {|row_col| initialize_field(row_col)} 
+    @captured_white_pieces = []
+    @captured_black_pieces = []
     setup_board()
   end
 
@@ -91,13 +93,29 @@ class ChessBoard
   end
 
   def move_piece(start_field, end_field, current_player)
-    if start_field.occupies_piece?
-      unless start_field.occupies_cp_piece?(current_player)
-        #update field
-        #mark piece as captured
-      end
+    # start_field is already tested to occupie current_players piece
+    # end_field is reachable without other pieces being in the way or being occupied by own piece
+    moving_piece = start_field.piece
+    update_end_field(end_field, moving_piece)
+    update_start_field(start_field)
+  end
+
+  def update_end_field(end_field, moving_piece)
+    # if end_field is empty assign moving_piece to it
+    # else mark captured piece as captured and safe it to apporiate array, then assign moving_piece to end_field
+    if end_field.empty?
+      moving_piece.position = end_field.position
+      end_field.piece = moving_piece
+    else
+      end_field.piece.captured = true
+      end_field.piece.color == :white ? self.captured_white_pieces << end_field.piece : self.captured_black_pieces << end_field.piece
+      moving_piece.position = end_field.position
+      end_field.piece = moving_piece
     end
-    # update start and end_field
+  end
+
+  def update_start_field(start_field)
+    start_field.piece = nil
   end
 
   def victory?
