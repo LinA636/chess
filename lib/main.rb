@@ -66,6 +66,7 @@ end
 def resume_old_game
   old_game_file = File.read('old_game.txt')
   old_game_obj = Marshal.load(old_game_file)
+  old_game_obj.start
 end
 
 def end_game
@@ -76,17 +77,3 @@ end
 
 print_explanations()
 start_resume_game()
-
-
-
-
-
-
-def save_game(obj)
-  File.open('old_game.txt', 'w') do |file|
-    file.puts obj
-  end
-end
-
-#seredObj = Marshal.dump(game)
-#save_game(seredObj)

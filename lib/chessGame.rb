@@ -86,6 +86,12 @@ attr_accessor :chess_board, :player1, :player2, :current_player
   def input_eql_exit?(input)
     if input == "exit"
       end_game()
+    elsif input == "save"
+      seredObj = Marshal.dump(self)
+      File.open('old_game.txt', 'w') do |file|
+        file.puts seredObj
+      end
+      end_game()
     end
   end
 
