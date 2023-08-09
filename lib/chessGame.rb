@@ -17,7 +17,7 @@ attr_accessor :chess_board, :player1, :player2, :current_player
   end
 
   def start
-    until victory?
+    until victory?()
       print_beginning_of_turn()
       make_move()
       switch_player()
@@ -57,9 +57,11 @@ attr_accessor :chess_board, :player1, :player2, :current_player
 
   def get_valid_move_pattern
     players_move = get_player_input()
+    input_eql_exit?(players_move)
     until valid_input_pattern?(players_move)
       puts "Choose a valid move: "
       players_move = get_player_input()
+      input_eql_exit?(players_move)
     end
     players_move
   end
@@ -78,6 +80,12 @@ attr_accessor :chess_board, :player1, :player2, :current_player
       self.current_player = self.player2
     else
       self.current_player = self.player1
+    end
+  end
+
+  def input_eql_exit?(input)
+    if input == "exit"
+      end_game()
     end
   end
 
