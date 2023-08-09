@@ -39,6 +39,16 @@ class ChessBoard
     puts "    a   b   c   d   e   f   g   h  "
   end
 
+  def print_captured_pieces(color)
+    puts
+    if color == :white
+      captured_white_pieces.each{|piece| print "#{piece}  "}
+    elsif color == :black
+      captured_black_pieces.each{|piece| print "#{piece}  "}
+    end
+    puts
+  end
+
   def valid_move?(start_field, end_field, current_player)
     # it is a valid move if
       # - the start_field is occupied by own piece
@@ -59,10 +69,14 @@ class ChessBoard
 
   def valid_start_field?(start_field, current_player)
     if start_field.occupies_cp_piece?(current_player)
-      return true
+      true
+    elsif start_field.empty?
+      puts "Choose a start field containing your piece: "
+      false
+    else
+      puts "Pick one of YOUR figures: "
+      false
     end
-    puts "Pick one of YOUR figures: "
-    return false
   end
 
   def clear_way?(positions_inbetween)
