@@ -25,7 +25,6 @@ class Rook < Piece
   end
 
   def get_field_positions_on_way(end_field)
-    return nil unless chosen_destination_reachable?(end_field)
     row_start = self.position.first
     column_start = self.position.last
     row_end = end_field.position.first

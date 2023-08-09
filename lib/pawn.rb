@@ -41,7 +41,6 @@ class Pawn < Piece
   end
 
   def get_field_positions_on_way(end_field)
-    return nil unless chosen_destination_reachable?(end_field)
     # returns the field positions between current field and end_field
     row_start_field = self.position.first
     row_end_field = end_field.position.first

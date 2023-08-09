@@ -25,7 +25,6 @@ class King < Piece
   end
 
   def get_field_positions_on_way(end_field)
-    return nil unless chosen_destination_reachable?(end_field)
     []
   end
 

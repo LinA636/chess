@@ -33,10 +33,11 @@ class Piece
 
   def chosen_destination_reachable?(movements, end_field)
     if movements.include?(end_field.position)
-      return true
+      true
+    else
+      puts "Choose reachable destination: "
+      false
     end
-    puts "Choose reachable destination: "
-    false
   end
 
 end
