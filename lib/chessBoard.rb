@@ -46,11 +46,8 @@ class ChessBoard
     if valid_start_field?(start_field, current_player)
       moving_piece = start_field.piece
       fields_inbetween = moving_piece.get_field_positions_on_way(end_field)
-      p moving_piece
-      p end_field
-      p fields_inbetween
       if (moving_piece.chosen_destination_reachable?(end_field) && clear_way?(fields_inbetween))
-        if valid_end_field?(end_field, current_player)
+        if valid_end_field?(moving_piece, end_field, current_player)
           return true
         end
       end
@@ -75,13 +72,22 @@ class ChessBoard
     false
   end
 
-  def valid_end_field?(end_field, current_player)
+  def valid_end_field?(moving_piece, end_field, current_player)
     # either field is unoccupied or its occupied by the opponent
-    if (end_field.occupies_opponent_piece?(current_player) || !end_field.occupies_piece?)
+    # if moving_piece is a pawn check if it is making a move or a taking
+    if moving_piece.instance_of?(Pawn) && moving_piece.taking?(end_field)
+      if end_field.occupies_opponent_piece?(current_player)
+        return true
+      else
+        puts "Choose a valid destination: "
+        return false
+      end
+    elsif (end_field.occupies_opponent_piece?(current_player) || !end_field.occupies_piece?)
       return true
+    else
+      puts "Choose a valid destination: "
+      false
     end
-    puts "Choose a valid destination: "
-    false
   end
 
   def move_piece(start_field, end_field, current_player)

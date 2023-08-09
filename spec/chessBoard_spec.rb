@@ -38,23 +38,18 @@ describe ChessBoard do
 
   describe '#clear_way?' do
     subject(:board_clear_way){described_class.new}
-    context 'when piece is a rook' do
-      before do
-        
-      end
+    let(:position_inbetween){[[6,0],[5,0]]}
 
-      context 'when positions_inbetween are not occupied' do
-        let(:position_inbetween){[[2,0], [3,0]]}
-        it 'returns true' do
-          expect(board_clear_way.clear_way?(position_inbetween)).to be true
-        end
+    context 'when positions_inbetween are not occupied' do
+      it 'returns true' do
+        board_clear_way.board[6,0].piece = nil
+        expect(board_clear_way.clear_way?(position_inbetween)).to be true
       end
+    end
 
-      context 'when at least one field inbetween is occupied' do
-        let(:position_inbetween){[[1,1], [1,2]]}
-        it 'retruns false' do
-          expect(board_clear_way.clear_way?(position_inbetween)).to be false
-        end
+    context 'when at least one field inbetween is occupied' do
+      it 'retruns false' do
+        expect(board_clear_way.clear_way?(position_inbetween)).to be false
       end
     end
   end
@@ -62,26 +57,54 @@ describe ChessBoard do
   describe '#valid_end_field?' do
     subject(:board_valid_end_field){described_class.new}
     let(:current_player){double('Player', color: :white)}
-    context 'when destination field is occupied by current player' do
-      let(:end_field){board_valid_end_field.board[7,0]}
-      it 'returns false' do
-        expect(board_valid_end_field.valid_end_field?(end_field, current_player)).to be false
+    context 'when moving_piece is not a pawn or it is a pawn doing a normal move' do
+      let(:moving_piece){double('Rook', color: :white)}
+      context 'when destination field is occupied by current player' do
+        let(:end_field){board_valid_end_field.board[7,0]}
+        it 'returns false' do
+          expect(board_valid_end_field.valid_end_field?(moving_piece, end_field, current_player)).to be false
+        end
+      end
+
+      context 'when destination is not occupied' do
+        let(:end_field){board_valid_end_field.board[3,3]}
+        it 'returns true' do
+          expect(board_valid_end_field.valid_end_field?(moving_piece, end_field, current_player)).to be true
+        end
+      end
+
+      context 'when destination is occupied by an opponent' do
+        let(:end_field){board_valid_end_field.board[1,0]}
+        it 'returns true' do
+          expect(board_valid_end_field.valid_end_field?(moving_piece, end_field, current_player)).to be true
+        end
       end
     end
 
-    context 'when destination is not occupied' do
-      let(:end_field){board_valid_end_field.board[3,3]}
-      it 'returns true' do
-        expect(board_valid_end_field.valid_end_field?(end_field, current_player)).to be true
+    context 'when moving_piece is a pawn doing a taking' do
+      let(:moving_piece){double('Pawn', color: :white, position: [6,0])}
+      context 'when destination field is not occupied by opponent player' do
+        let(:end_field){board_valid_end_field.board[5,1]}
+        before do
+          allow(moving_piece).to receive(:instance_of?).and_return(true)
+          allow(moving_piece).to receive(:taking?).and_return true
+          allow(end_field).to receive(:occupies_opponent_piece?).and_return false  
+        end
+
+        it 'returns false' do
+          expect(board_valid_end_field.valid_end_field?(moving_piece, end_field, current_player)).to be false
+        end
+      end
+
+      context 'when destination is occupied by opponent player' do
+        it 'returns true' do
+          board_valid_end_field.board[5,1].piece = double('Pawn', color: :black, position: [5,1])
+          end_field = board_valid_end_field.board[5,1]
+          expect(board_valid_end_field.valid_end_field?(moving_piece, end_field, current_player)).to be true
+        end
       end
     end
 
-    context 'when destination is occupied by an opponent' do
-      let(:end_field){board_valid_end_field.board[1,0]}
-      it 'returns true' do
-        expect(board_valid_end_field.valid_end_field?(end_field, current_player)).to be true
-      end
-    end
   end
 
   describe '#valid_move?' do
