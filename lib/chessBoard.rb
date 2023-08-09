@@ -53,13 +53,13 @@ class ChessBoard
     # it is a valid move if
       # - the start_field is occupied by own piece
       # - the destination is reachable
-      # - no other piece is in the way (except for the knight)
+      # - no other piece is in the way (except for the knight - she jumps)
       # - if its a taking the field must be occupied by an opponents piece
     if valid_start_field?(start_field, current_player)
       moving_piece = start_field.piece
-      fields_inbetween = moving_piece.get_field_positions_on_way(end_field)
-      if (moving_piece.chosen_destination_reachable?(end_field) && clear_way?(fields_inbetween))
-        if valid_end_field?(moving_piece, end_field, current_player)
+      if moving_piece.chosen_destination_reachable?(end_field) 
+        fields_inbetween = moving_piece.get_field_positions_on_way(end_field)
+        if (clear_way?(fields_inbetween) && valid_end_field?(moving_piece, end_field, current_player))
           return true
         end
       end
