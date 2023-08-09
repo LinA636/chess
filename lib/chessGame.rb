@@ -48,7 +48,7 @@ attr_accessor :chess_board, :player1, :player2, :current_player
     players_move = get_valid_move_pattern()
     start_field = self.chess_board.get_field(players_move[0..1])
     end_field = self.chess_board.get_field(players_move[2..3])
-    while start_field.empty? || end_field.empty?
+    while start_field.empty?
       players_move = get_valid_move_pattern()
       start_field = self.chess_board.get_field(players_move[0..1])
       end_field = self.chess_board.get_field(players_move[2..3])
