@@ -26,7 +26,7 @@ def print_explanations
   puts "    'exit'"
   puts
   puts "To declare your move type for example: "
-  puts "    'a1a2'  "
+  puts "    'a2a3'  "
   puts "to move a pawn from field a1 to field a2."
   puts 
   puts "Enough of this. Let's start!\n"
@@ -38,13 +38,13 @@ def print_explanations
 end
 
 def start_resume_game
-  game_mode = get_game_mode
+  game_mode = get_game_mode()
   if game_mode == "start"
-    start_new_game
+    start_new_game()
   elsif game_mode == "resume"
-    resume_old_game
+    resume_old_game()
   elsif game_mode == "exit"
-    end_game
+    end_game()
   end
 end
 
@@ -74,8 +74,8 @@ end
 
 
 
-print_explanations
-start_resume_game
+print_explanations()
+start_resume_game()
 
 
 
