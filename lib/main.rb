@@ -1,5 +1,23 @@
 require_relative "../lib/chessGame"
 
+
+
+=begin
+  TODOS
+  - each piece-Class: write #get_field_positions_on_way 
+    - king
+    - queen
+    - bishop
+    - knight -> give back empty array
+  - chessBoard: 
+    - for get_field_position check for nil -> return false then so player makes move again
+    - write TDD for methods
+    - finish #move_piece
+  - chessGame:
+    - write TDD for methods
+
+=end
+
 def print_explanations
   puts "WELCOME! You're about to play chess.\n"
   puts "You're always able to stop and save a started game at any point by typing "
@@ -11,7 +29,7 @@ def print_explanations
   puts "    'a1a2'  "
   puts "to move a pawn from field a1 to field a2."
   puts 
-  puts "Enough of this. Let's start!"
+  puts "Enough of this. Let's start!\n"
   #How to
   # - save game
   # - exit game
@@ -30,13 +48,12 @@ def start_resume_game
   end
 end
 
-
 def get_game_mode
-  puts "Do you want to start a new game ('start') or resume a previous started one ('resume')?: " 
+  print "Do you want to start a new game ('start') or resume a previous started one ('resume')?: " 
   input = gets.chomp.downcase
   until ["start", "resume", "exit"].include?(input)
-    puts "\nPlease type 'start' or 'resume': "
-    input = gets.downcase
+    print "\nPlease type 'start' or 'resume': "
+    input = gets.chomp.downcase
   end
   input
 end
@@ -71,5 +88,5 @@ def save_game(obj)
   end
 end
 
-seredObj = Marshal.dump(game)
-save_game(seredObj)
+#seredObj = Marshal.dump(game)
+#save_game(seredObj)

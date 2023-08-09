@@ -1,4 +1,5 @@
 require_relative "../lib/field"
+
 class Piece
   attr_accessor :children, :parent, :position, :captured
   attr_reader :symbol, :color
@@ -31,6 +32,11 @@ class Piece
   end
 
   def chosen_destination_reachable?(movements, end_field)
-    return movements.include?(end_field.position)
+    if movements.include?(end_field.position)
+      return true
+    end
+    puts "Choose reachable destination: "
+    false
   end
+
 end
