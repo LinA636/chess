@@ -8,11 +8,13 @@ require_relative "../lib/king"
 require "matrix"
 
 class ChessBoard
-  attr_accessor :board, :captured_white_pieces, :captured_black_pieces
+  attr_accessor :board, :captured_white_pieces, :captured_black_pieces, :white_pieces, :black_pieces
   def initialize
     @board = Matrix.build(8,8).each_with_index {|row_col| initialize_field(row_col)} 
     @captured_white_pieces = []
     @captured_black_pieces = []
+    @white_pieces = []
+    @black_pieces = []
     setup_board()
   end
 
@@ -122,7 +124,15 @@ class ChessBoard
       end_field.piece = moving_piece
     else
       end_field.piece.captured = true
-      end_field.piece.color == :white ? self.captured_white_pieces << end_field.piece : self.captured_black_pieces << end_field.piece
+      if end_field.piece.color == :white 
+        self.captured_white_pieces << end_field.piece
+        self.white_pieces.delete(end_field.piece)
+        p white_pieces.length
+      else 
+        self.captured_black_pieces << end_field.piece
+        self.black_pieces.delete(end_field.piece)
+        p black_pieces.length
+      end
       moving_piece.position = end_field.position
       end_field.piece = moving_piece
     end
@@ -130,14 +140,6 @@ class ChessBoard
 
   def update_start_field(start_field)
     start_field.piece = nil
-  end
-
-  def victory?
-    # king in checkmate
-    # king captured
-    check?
-    checkmate?
-    king_captured?
   end
 
   def get_field(field_id)
@@ -153,7 +155,6 @@ class ChessBoard
   end
 
   def setup_board
-    self.board.row(1).each_with_index{|field, column| field.piece = Pawn.new(:black,field.position)}
     self.board.row(0).each_with_index do |field, column| 
       case column
       when 0, 7
@@ -167,6 +168,18 @@ class ChessBoard
       when 4
         field.piece = King.new(:black, field.position)
       end
+
+      self.black_pieces << field.piece
+    end
+
+    self.board.row(1).each_with_index do |field, column| 
+      field.piece = Pawn.new(:black,field.position)
+      self.black_pieces << field.piece
+    end
+
+    self.board.row(6).each_with_index do |field, column| 
+      field.piece = Pawn.new(:white, field.position)
+      self.white_pieces << field.piece
     end
 
     self.board.row(7).each_with_index do |field, column| 
@@ -182,20 +195,92 @@ class ChessBoard
       when 4
         field.piece = King.new(:white, field.position)
       end
+      self.white_pieces << field.piece
+    end
+  end
+
+  def victory?
+    # king in checkmate
+    # king captured
+    kings = find_kings()
+    white_king = kings.first
+    black_king = kings.last
+
+    if king_captured?(white_king)
+      return :black
+    elsif king_captured?(black_king)
+      return :white
+    end
+
+    if check?(white_king)
+      if checkmate?(white_king)
+        # anounce checkmate
+        return :black
+      else
+        #announce check
+        return false
+      end
+    elsif check?(black_king)
+      if checkmate?(black_king)
+        #announce checkmate
+        return :white
+      else
+        #annonce check
+        return false
+      end
+    end
+
+    return false
+  end
+
+  def find_kings()
+    white_king = (self.white_pieces+self.captured_white_pieces).select{|piece|piece.instance_of?(King)}.first
+    black_king = (self.black_pieces+self.captured_black_pieces).select{|piece|piece.instance_of?(King)}.first
+    [white_king, black_king]
+  end
+
+  def checkmate?(king)
+    # check if the king can move to another field (empty field or field occupied by opponent?), which is not endangered
+    neighbour_fields_positions = king.next_movements
+    neighbour_fields = self.board.select{|field| neighbour_fields_positions.include?(field.position)}
+    save_fields = neighbour_fields.select{|field| field.empty? || field.occupies_opponent_piece?}.select{|field| pieces_able_to_reach_field(field, king.color).empty?}
+    if save_fields.empty?
+      # check if there is another piece which can be sacrifieced, a piece between the king and the pieces that can reach the king
+      kings_field = self.board[king.position]
+      dangerous_pieces = pieces_able_to_reach_field(kings_field, king.color)
+      # if there are more than one dangerous_piece, its checkmate as we only have one move to prevent the killing
     end
     
-    self.board.row(6).each_with_index{|field, column| field.piece = Pawn.new(:white, field.position)}
+    return false
   end
 
-  def checkmate?
-    
+  def check?(king)
+    # state of a king, if he can be captured within one move of the opponent, but the king still can be safed by current player
+      # check if king is reachable, by any of opponents pieces
+      # check if the king can move to another field (empty field or field occupied by opponent?)
+      # check if there is another piece which can be sacrifieced
+    kings_field = self.board[king.position]
+    !pieces_able_to_reach_field(kings_field, king.color).empty?
   end
 
-  def check?
+  def pieces_able_to_reach_field(destination_field, piece_color)
+    if piece_color == :white
+      return self.black_pieces.select{|piece| piece.chosen_destination_reachable?(kings_field)}
+    else
+      return self.white_pieces.any?{|piece| piece.chosen_destination_reachable?(kings_field)}
+    end
+  end
+
+  def king_captured?(king)
+    king.captured  
+  end
+
+  def announc_white_check
 
   end
 
-  def king_captured?
-    (!captured_white_pieces.select{|piece| piece.instance_of?(King)}.empty? || !captured_black_pieces.select{|piece| piece.instance_of?(King)}.empty?)
+  def announce_black_check
+
   end
+
 end
