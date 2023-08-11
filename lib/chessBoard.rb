@@ -70,11 +70,11 @@ class ChessBoard
   end
 
   def valid_start_field?(start_field, current_player)
-    if start_field.occupies_cp_piece?(current_player)
-      true
-    elsif start_field.empty?
+    if start_field.empty?
       puts "Choose a start field containing your piece: "
       false
+    elsif start_field.occupies_cp_piece?(current_player)
+      true      
     else
       puts "Pick one of YOUR figures: "
       false
@@ -283,7 +283,7 @@ class ChessBoard
       # check if king is reachable, by any of opponents pieces
       # check if the king can move to another field (empty field or field occupied by opponent?)
       # check if there is another piece which can be sacrifieced
-    kings_field = self.board[king.position]
+    kings_field = self.board[king.position.first, king.position.last]
     !pieces_able_to_reach_field(kings_field, king.color).empty?
   end
 
@@ -298,9 +298,9 @@ class ChessBoard
   def pieces_able_to_reach_field(destination_field, piece_color)
     # selects all the pieces in given color, which can reach the destination field, without other pieces being in their way
     if piece_color == :white
-      return self.white_pieces.select{|piece| (piece.chosen_destination_reachable?(kings_field) && clear_way?(piece.get_field_positions_on_way(kings_field)))}
+      return self.white_pieces.select{|piece| (piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field)))}
     else
-      return self.black_pieces.select{|piece| (piece.chosen_destination_reachable?(kings_field) && clear_way?(piece.get_field_positions_on_way(kings_field)))}
+      return self.black_pieces.select{|piece| (piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field)))}
     end
   end
 
@@ -311,6 +311,7 @@ class ChessBoard
   def announce_checkmate(color)
     puts "#{color} checkmate!"
   end
+
 
   def announce_check(color)
     puts "#{color} check!"
