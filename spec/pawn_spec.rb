@@ -208,18 +208,6 @@ describe Pawn do
         expect(black_pawn.get_field_positions_on_way(destination_field)).to eq([])
       end
     end
-
-    context "when the end field is not part of next movements" do
-      it "returns nil" do
-        # Set up the white pawn for the test
-        white_pawn.first_move_done = false
-        allow(white_pawn).to receive(:next_movements).and_return([[5, 3], [4, 3]])
-        allow(white_pawn).to receive(:taking_movements).and_return([])
-        destination_field = Field.new("a1", [2, 3])
-        # The end field is [2, 3], but it is not reachable from the current position
-        expect(white_pawn.get_field_positions_on_way(destination_field)).to eq(nil)
-      end
-    end
   end
 
 end

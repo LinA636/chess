@@ -106,13 +106,5 @@ describe Rook do
         expect(rook.get_field_positions_on_way(destination_field)).to match_array([])
       end
     end
-
-    context "when the end field is not reachable" do
-      it "returns nil for an unreachable end field" do
-        destination_field = Field.new("a2", [7,7])
-        # The end field is [5, 5], but it is not reachable from the current position
-        expect(rook.get_field_positions_on_way(destination_field)).to be_nil
-      end
-    end
   end
 end

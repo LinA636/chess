@@ -16,8 +16,9 @@ describe ChessBoard do
     let(:opponent_player){double('Player', color: :black)}
   
     context 'when start_field is occupied by the current_player' do
-      let(:start_field){double('Field', id: "a7", position: [7,0])}
+      let(:start_field){double('Field', id: "a1", position: [7,0])}
       before do
+        allow(start_field).to receive(:empty?).and_return(false)
         allow(start_field).to receive(:occupies_cp_piece?).and_return(true)
       end
       it 'returns true' do
@@ -26,9 +27,20 @@ describe ChessBoard do
     end
 
     context 'when start_field is not occupied by the current player' do
-      let(:start_field){double('Field', id: "a0", position: [0,0])}
+      let(:start_field){double('Field', id: "a8", position: [0,0])}
       before do
+        allow(start_field).to receive(:empty?).and_return(false)
         allow(start_field).to receive(:occupies_cp_piece?).and_return(false)
+      end
+      it 'returns false' do
+        expect(board_valid_start_field.valid_start_field?(start_field, current_player)).to be false
+      end
+    end
+
+    context 'when start_field is empty' do
+      let(:start_field){double('Field', id: "c4", position: [4,2])}
+      before do
+        allow(start_field).to receive(:empty?).and_return(true)
       end
       it 'returns false' do
         expect(board_valid_start_field.valid_start_field?(start_field, current_player)).to be false
@@ -181,6 +193,52 @@ describe ChessBoard do
           start_field = board_valid_move.board[1,1]
           allow(board_valid_move).to receive(:valid_start_field).and_return(false)
           expect(board_valid_move.valid_move?(start_field, end_field, current_player)).to be false
+        end
+      end
+    end
+  end
+
+  describe '#pieces_able_to_reach_field' do
+    subject(:board_pieces_reach_field){described_class.new}
+    context 'when piece_color is black' do
+      let(:color){:black}
+      let(:destination_field){board_pieces_reach_field.board[2,3]}
+
+      it 'returns and array of black pieces, which can reach the destination_field' do
+        # the destination is [2,3], as the field [1,4], the rook on [0,5] and the pawn on [1,3] can reach the destination
+        board_pieces_reach_field.board[1,4].piece = nil
+        solution = [board_pieces_reach_field.board[0,5].piece, board_pieces_reach_field.board[1,2].piece]
+        expect(board_pieces_reach_field.pieces_able_to_reach_field(destination_field, color)).to match(solution)
+      end
+    end
+  end
+
+  describe '#king_can_escape' do
+    subject(:board_king_escape){described_class.new}
+    context 'when king is surrounded by its own pieces and therefore cant move' do
+      before do
+        board_king_escape.board[5,5].piece = double('Knight', position: [5,5], color: :black)
+        allow(king).to receive(:next_movements)
+        allow(board_king_escape).to receive(:empty?).and_return false
+        allow(board_king_escape).to receive(:occupies_opponent_piece?).and_return false
+        allow(board_king_escape).to receive(:pieces_able_to_reach_field).and_return []
+      end
+      xit 'returns false' do
+        king = board_king_escape.board[7,4].piece
+        expect(board_king_escape.king_can_escape?(king))
+      end
+    end
+
+    context 'when king can move to at least one field next to it' do
+      context 'when that field is reachable by an opponents piece' do
+        xit 'returns true' do
+          
+        end
+      end
+      
+      context 'when that field is not reachable by an opponents piece' do
+        xit 'returns false' do
+          
         end
       end
     end

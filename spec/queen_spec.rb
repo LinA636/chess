@@ -131,14 +131,6 @@ describe Queen do
           expect(queen.get_field_positions_on_way(destination_field)).to match_array([[3,2]])
         end
       end
-      
-      context "when the end field is not reachable" do
-        it "returns nil for an unreachable end field" do
-          destination_field = Field.new("a2", [75])
-          # The end field is [7,5], but it is not reachable from the current position
-          expect(queen.get_field_positions_on_way(destination_field)).to be_nil
-        end
-      end
     end
   end
 

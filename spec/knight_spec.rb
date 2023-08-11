@@ -61,4 +61,14 @@ describe Knight do
       end
     end
   end
+
+  describe '#get_field_positions_on_way' do
+    subject(:knight) { described_class.new(:white, [3,2]) }
+    context 'when the field is reachable' do
+      it 'returns empty array'do
+        destination_field = Field.new("d7", [1,3])
+        expect(knight.get_field_positions_on_way(destination_field)).to match_array([])
+      end
+    end
+  end
 end
