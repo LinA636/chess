@@ -200,8 +200,7 @@ class ChessBoard
   end
 
   def victory?
-    # king in checkmate
-    # king captured
+    # returns winner color or false, if there is no victory
     kings = find_kings()
     white_king = kings.first
     black_king = kings.last
@@ -214,18 +213,18 @@ class ChessBoard
 
     if check?(white_king)
       if checkmate?(white_king)
-        # anounce checkmate
+        announce_checkmate(white_king.color)
         return :black
       else
-        #announce check
+        announce_check(white_king.color)
         return false
       end
     elsif check?(black_king)
       if checkmate?(black_king)
-        #announce checkmate
+        announce_checkmate(black_king.color)
         return :white
       else
-        #annonce check
+        announce_check(black_king.color)
         return false
       end
     end
@@ -240,18 +239,43 @@ class ChessBoard
   end
 
   def checkmate?(king)
-    # check if the king can move to another field (empty field or field occupied by opponent?), which is not endangered
+    if king_can_escape?(king)
+      return false
+    else
+      kings_field = self.board[king.position]
+      pieces_attacking_king = pieces_able_to_reach_field(kings_field, get_opposite_color(king.color))
+      if pieces_attacking_king.length > 1
+        return true
+      elsif pieces_attacking_king.length == 0
+        return false
+      else
+        if sacrifice_possible?(king, pieces_attacking_king)
+          return false
+        else
+          return true
+        end
+      end
+    end
+    return false
+  end
+
+  def king_can_escape?(king)
+    #check if there is a field the king can go to
     neighbour_fields_positions = king.next_movements
     neighbour_fields = self.board.select{|field| neighbour_fields_positions.include?(field.position)}
     save_fields = neighbour_fields.select{|field| field.empty? || field.occupies_opponent_piece?}.select{|field| pieces_able_to_reach_field(field, king.color).empty?}
     if save_fields.empty?
-      # check if there is another piece which can be sacrifieced, a piece between the king and the pieces that can reach the king
-      kings_field = self.board[king.position]
-      dangerous_pieces = pieces_able_to_reach_field(kings_field, king.color)
-      # if there are more than one dangerous_piece, its checkmate as we only have one move to prevent the killing
+      return false
+    else
+      # check if that field is endangered by the opponent
+      return save_fields.any?{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color)).empty?}
     end
-    
-    return false
+  end
+
+  def sacrifice_possible?(king, pieces_attacking_king)
+    # check if there is another piece of the kings color to be moved between king and its opponent
+    fields_inbetween = pieces_attacking_king.first.get_field_positions_on_way(king.position)
+    return fields_inbetween.any?{|field| !pieces_able_to_reach_field(field, king.color).empty?}
   end
 
   def check?(king)
@@ -263,11 +287,20 @@ class ChessBoard
     !pieces_able_to_reach_field(kings_field, king.color).empty?
   end
 
-  def pieces_able_to_reach_field(destination_field, piece_color)
-    if piece_color == :white
-      return self.black_pieces.select{|piece| piece.chosen_destination_reachable?(kings_field)}
+  def get_opposite_color(color)
+    if color == :white
+      return :black
     else
-      return self.white_pieces.any?{|piece| piece.chosen_destination_reachable?(kings_field)}
+      return :white
+    end
+  end
+
+  def pieces_able_to_reach_field(destination_field, piece_color)
+    # selects all the pieces in given color, which can reach the destination field, without other pieces being in their way
+    if piece_color == :white
+      return self.white_pieces.select{|piece| (piece.chosen_destination_reachable?(kings_field) && clear_way?(piece.get_field_positions_on_way(kings_field)))}
+    else
+      return self.black_pieces.select{|piece| (piece.chosen_destination_reachable?(kings_field) && clear_way?(piece.get_field_positions_on_way(kings_field)))}
     end
   end
 
@@ -275,12 +308,12 @@ class ChessBoard
     king.captured  
   end
 
-  def announc_white_check
-
+  def announce_checkmate(color)
+    puts "#{color} checkmate!"
   end
 
-  def announce_black_check
-
+  def announce_check(color)
+    puts "#{color} check!"
   end
 
 end

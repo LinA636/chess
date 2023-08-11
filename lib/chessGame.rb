@@ -25,7 +25,10 @@ attr_accessor :chess_board, :player1, :player2, :current_player
   end
 
   def victory?
-    if self.chess_board.victory?
+    winner_color = self.chess_board.victory?
+    if [:white, :black].include?(winner_color)
+      announce_win(winner_color)
+      #print_board
       end_game()
     else
       false
@@ -93,6 +96,10 @@ attr_accessor :chess_board, :player1, :player2, :current_player
       end
       end_game()
     end
+  end
+  
+  def announce_win(color)
+    puts "The winner is: #{color}!"
   end
 
   def end_game
