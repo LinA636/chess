@@ -31,9 +31,9 @@ class Field
     return false
   end
 
-  def occupies_opponent_piece?(current_player)
+  def occupies_opponent_piece?(opponent_color)
     unless empty?()
-      return self.piece.color != current_player.color
+      return self.piece.color == opponent_color
     end
     return false
   end

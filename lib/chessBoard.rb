@@ -94,13 +94,13 @@ class ChessBoard
     # either field is unoccupied or its occupied by the opponent
     # if moving_piece is a pawn check if it is making a move or a taking
     if moving_piece.instance_of?(Pawn) && moving_piece.taking?(end_field)
-      if end_field.occupies_opponent_piece?(current_player)
+      if end_field.occupies_opponent_piece?(get_opposite_color(current_player.color))
         return true
       else
         puts "Choose a valid destination: "
         return false
       end
-    elsif (end_field.occupies_opponent_piece?(current_player) || !end_field.occupies_piece?)
+    elsif (end_field.occupies_opponent_piece?(get_opposite_color(current_player.color)) || !end_field.occupies_piece?)
       return true
     else
       puts "Choose a valid destination: "
@@ -261,15 +261,23 @@ class ChessBoard
 
   def king_can_escape?(king)
     #check if there is a field the king can go to
-    neighbour_fields_positions = king.next_movements
-    neighbour_fields = self.board.select{|field| neighbour_fields_positions.include?(field.position)}
-    save_fields = neighbour_fields.select{|field| field.empty? || field.occupies_opponent_piece?}.select{|field| pieces_able_to_reach_field(field, king.color).empty?}
+    save_fields = get_fields_king_can_escape_to(king)
     if save_fields.empty?
       return false
     else
       # check if that field is endangered by the opponent
-      return save_fields.any?{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color)).empty?}
+      return field_endangered_by_opponent(save_fields, king)
     end
+  end
+
+  def get_fields_king_can_escape_to(king)
+    neighbour_fields_positions = king.next_movements
+    neighbour_fields = self.board.select{|field| neighbour_fields_positions.include?(field.position)}
+    neighbour_fields.select{|field| (field.empty? || field.occupies_opponent_piece?(get_opposite_color(king.color)))}.select{|field| pieces_able_to_reach_field(field, king.color).empty?}
+  end
+
+  def field_endangered_by_opponent?(save_fields, king)
+    save_fields.any?{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color)).empty?}
   end
 
   def sacrifice_possible?(king, pieces_attacking_king)

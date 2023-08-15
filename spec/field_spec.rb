@@ -59,6 +59,7 @@ describe Field do
     let(:white_player){double('Player', color: :white)}
     let(:black_player){double('Player', color: :black)}
     let(:current_player){white_player}
+    let(:opponent_color){:black}
     context 'when the field is occupied by a piece of the current player' do
       let(:piece){double('Piece', color: :white)}
       before do
@@ -66,7 +67,7 @@ describe Field do
       end
 
       it 'returns false' do        
-        expect(field_occupies_opponent.occupies_opponent_piece?(current_player)).to be false
+        expect(field_occupies_opponent.occupies_opponent_piece?(opponent_color)).to be false
       end
     end
 
@@ -76,13 +77,13 @@ describe Field do
         field_occupies_opponent.piece = piece
       end
       it 'returns true' do
-        expect(field_occupies_opponent.occupies_opponent_piece?(current_player)).to be true
+        expect(field_occupies_opponent.occupies_opponent_piece?(opponent_color)).to be true
       end
     end
 
     context 'when the field is empty' do
       it 'returns false' do
-        expect(field_occupies_opponent.occupies_opponent_piece?(current_player)).to be false
+        expect(field_occupies_opponent.occupies_opponent_piece?(opponent_color)).to be false
       end
     end
   end

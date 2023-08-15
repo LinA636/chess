@@ -204,43 +204,48 @@ describe ChessBoard do
       let(:color){:black}
       let(:destination_field){board_pieces_reach_field.board[2,3]}
 
-      it 'returns and array of black pieces, which can reach the destination_field' do
+      it 'returns an array of black pieces, which can reach the destination_field' do
         # the destination is [2,3], as the field [1,4], the rook on [0,5] and the pawn on [1,3] can reach the destination
+        board_pieces_reach_field.board[1,4].piece.position = [2,4]
         board_pieces_reach_field.board[1,4].piece = nil
-        solution = [board_pieces_reach_field.board[0,5].piece, board_pieces_reach_field.board[1,2].piece]
+        solution = [board_pieces_reach_field.board[0,5].piece, board_pieces_reach_field.board[1,2].piece, board_pieces_reach_field.board[1,3].piece]
         expect(board_pieces_reach_field.pieces_able_to_reach_field(destination_field, color)).to match(solution)
       end
     end
   end
 
-  describe '#king_can_escape' do
-    subject(:board_king_escape){described_class.new}
-    context 'when king is surrounded by its own pieces and therefore cant move' do
-      before do
-        board_king_escape.board[5,5].piece = double('Knight', position: [5,5], color: :black)
-        allow(king).to receive(:next_movements)
-        allow(board_king_escape).to receive(:empty?).and_return false
-        allow(board_king_escape).to receive(:occupies_opponent_piece?).and_return false
-        allow(board_king_escape).to receive(:pieces_able_to_reach_field).and_return []
-      end
-      xit 'returns false' do
-        king = board_king_escape.board[7,4].piece
-        expect(board_king_escape.king_can_escape?(king))
+  describe '#get_fields_king_can_escape_to' do
+    subject(:board_king){described_class.new}
+    let(:king){board_king.board[7,4].piece}
+    context 'when king is surrounded by its own pieces' do
+      it 'returns empty array' do
+        solution = board_king.get_fields_king_can_escape_to(king)
+        expect(solution).to match([])  
       end
     end
 
-    context 'when king can move to at least one field next to it' do
-      context 'when that field is reachable by an opponents piece' do
-        xit 'returns true' do
-          
-        end
+    context 'when there is one unoccupied field' do
+      xit 'returns that empty field' do
+        
       end
+    end
+
+    context 'when there is one field occupied by the opponent' do
+      xit 'returns that field' do
+
+      end
+    end
+  end
+
+  describe '#field_endangered_by_opponent?' do
+    context 'when there is not field endagered by an opponent' do
+      xit 'returns false' do
+        
+      end
+    end
+
+    context 'when there is at least one field endangered by an opponent' do
       
-      context 'when that field is not reachable by an opponents piece' do
-        xit 'returns false' do
-          
-        end
-      end
     end
   end
 end
