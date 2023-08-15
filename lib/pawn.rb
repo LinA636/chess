@@ -37,7 +37,9 @@ class Pawn < Piece
   end
 
   def chosen_destination_reachable?(end_field)
-    super(next_movements + taking_movements, end_field)
+    if end_field.empty?
+      super(next_movements + taking_movements, end_field)
+    end
   end
 
   def get_field_positions_on_way(end_field)

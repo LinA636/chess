@@ -116,7 +116,7 @@ describe Pawn do
     subject(:white_pawn) {described_class.new(:white, [1, 3]) }
     subject(:black_pawn) { described_class.new(:black, [6, 4]) }
     context "when the pawn is white" do
-      context 'when the destination is avalid next_movement' do
+      context 'when the destination is a valid next_movement' do
         it "returns true" do
           end_field = Field.new("c5", [0,3])
           expect(white_pawn.chosen_destination_reachable?(end_field)).to be true
