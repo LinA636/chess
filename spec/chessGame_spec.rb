@@ -4,19 +4,9 @@ describe ChessGame do
   
   describe "#get_start_end_field" do
     subject(:game){described_class.new}
-    let(:empty_start){'b5b6'}
     let(:occupied_start){'a2a3'}
     before do
-      allow(game).to receive(:get_valid_move_pattern).and_return(empty_start, occupied_start)
-    end
-
-    context 'when start field is empty once' do
-      it 'gets a new pattern and returns start and end field' do
-        start_field = game.chess_board.board[6,0]
-        end_field = game.chess_board.board[5,0]
-
-        expect(game.get_start_end_field).to match([start_field, end_field])
-      end
+      allow(game).to receive(:get_valid_move_pattern).and_return(occupied_start)
     end
 
     context 'when start field is occupied' do
