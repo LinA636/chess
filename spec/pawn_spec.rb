@@ -119,14 +119,14 @@ describe Pawn do
       context 'when the destination is a valid next_movement' do
         it "returns true" do
           end_field = Field.new("c5", [0,3])
-          expect(white_pawn.chosen_destination_reachable?(end_field)).to be true
+          expect(white_pawn.chosen_destination_reachable?(end_field, "move")).to be true
         end
       end
       
       context 'when the destination is a valid taking_movement' do
         it 'retruns true' do
           end_field = Field.new("c5", [0,2])
-          expect(white_pawn.chosen_destination_reachable?(end_field)).to be true
+          expect(white_pawn.chosen_destination_reachable?(end_field, "take")).to be true
         end
       end   
 
@@ -142,14 +142,14 @@ describe Pawn do
       context "when the destination is a valid next_movement" do
         it "returns true" do
           end_field = Field.new("d3", [7,4])
-          expect(black_pawn.chosen_destination_reachable?(end_field)).to be true
+          expect(black_pawn.chosen_destination_reachable?(end_field, "move")).to be true
         end
       end
 
       context 'when the destination is a valid taking_movement' do
         it 'retruns true' do
           end_field = Field.new("c5", [7,5])
-          expect(black_pawn.chosen_destination_reachable?(end_field)).to be true
+          expect(black_pawn.chosen_destination_reachable?(end_field, "take")).to be true
         end
       end
 

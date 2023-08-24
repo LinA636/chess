@@ -261,23 +261,24 @@ class ChessBoard
 
   def king_can_escape?(king)
     #check if there is a field the king can go to
-    save_fields = get_fields_king_can_escape_to(king)
-    if save_fields.empty?
+    escape_fields = get_fields_king_can_escape_to(king)
+    if escape_fields.empty?
       return false
     else
       # check if that field is endangered by the opponent
-      return field_endangered_by_opponent(save_fields, king)
+      return fields_not_endangered_by_opponent(escape_fields, king)
     end
   end
 
   def get_fields_king_can_escape_to(king)
     neighbour_fields_positions = king.next_movements
     neighbour_fields = self.board.select{|field| neighbour_fields_positions.include?(field.position)}
-    neighbour_fields.select{|field| (field.empty? || field.occupies_opponent_piece?(get_opposite_color(king.color)))}.select{|field| pieces_able_to_reach_field(field, king.color).empty?}
+    neighbour_fields.select{|field| (field.empty? || field.occupies_opponent_piece?(get_opposite_color(king.color)))}.select{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color)).empty?}
   end
 
-  def field_endangered_by_opponent?(save_fields, king)
-    save_fields.any?{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color)).empty?}
+  def fields_not_endangered_by_opponent(escape_fields, king)
+    #returns those fields, which are not endangered by an opponent piece
+    escape_fields.select{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color)).empty?}
   end
 
   def sacrifice_possible?(king, pieces_attacking_king)
@@ -303,12 +304,25 @@ class ChessBoard
     end
   end
 
-  def pieces_able_to_reach_field(destination_field, piece_color)
+  def pieces_able_to_reach_field(destination_field, attack_color)
     # selects all the pieces in given color, which can reach the destination field, without other pieces being in their way
-    if piece_color == :white
-      return self.white_pieces.select{|piece| (piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field)))}
+    if attack_color == :white
+      return self.white_pieces.select do |piece|
+          if piece.instance_of?(Pawn)
+            piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
+          else
+            piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
+          end
+        end
     else
-      return self.black_pieces.select{|piece| (piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field)))}
+      p self.black_pieces.length
+      return self.black_pieces.select do |piece|
+          if piece.instance_of?(Pawn)
+            piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
+          else
+            piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
+          end
+        end
     end
   end
 

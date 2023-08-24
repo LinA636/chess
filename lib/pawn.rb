@@ -1,4 +1,4 @@
-require_relative "../lib/piece"
+ require_relative "../lib/piece"
 
 class Pawn < Piece
   attr_accessor :first_move_done
@@ -36,8 +36,12 @@ class Pawn < Piece
     taking_movements.include?(end_field.position)
   end
 
-  def chosen_destination_reachable?(end_field)
-    if end_field.empty?
+  def chosen_destination_reachable?(end_field, move_take = " ")
+    if move_take == "move"
+      super(next_movements, end_field)
+    elsif move_take == "take"
+      super(taking_movements, end_field)
+    else
       super(next_movements + taking_movements, end_field)
     end
   end

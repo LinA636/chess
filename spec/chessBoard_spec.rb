@@ -50,7 +50,7 @@ describe ChessBoard do
 
   describe '#clear_way?' do
     subject(:board_clear_way){described_class.new}
-    let(:position_inbetween){[[6,0],[5,0]]}
+    let(:position_inbetween){[[6,0],[5,0], [4,0],[3,0]]}
 
     context 'when positions_inbetween are not occupied' do
       it 'returns true' do
@@ -59,9 +59,17 @@ describe ChessBoard do
       end
     end
 
-    context 'when at least one field inbetween is occupied' do
+    context 'when one field inbetween is occupied' do
       it 'retruns false' do
         expect(board_clear_way.clear_way?(position_inbetween)).to be false
+      end
+    end
+
+    context 'when two fields inbetween are occupied' do
+      it 'returns false' do
+        board_clear_way.board[3,0].piece = Pawn.new(:black, [3,0])
+        solution = board_clear_way.clear_way?(position_inbetween)
+        expect(solution).to be false
       end
     end
   end
@@ -200,16 +208,45 @@ describe ChessBoard do
 
   describe '#pieces_able_to_reach_field' do
     subject(:board_pieces_reach_field){described_class.new}
-    context 'when piece_color is black' do
-      let(:color){:black}
-      let(:destination_field){board_pieces_reach_field.board[2,3]}
 
-      it 'returns an array of black pieces, which can reach the destination_field' do
-        # the destination is [2,3], as the field [1,4], the rook on [0,5] and the pawn on [1,3] can reach the destination
-        board_pieces_reach_field.board[1,4].piece.position = [2,4]
-        board_pieces_reach_field.board[1,4].piece = nil
-        solution = [board_pieces_reach_field.board[0,5].piece, board_pieces_reach_field.board[1,2].piece, board_pieces_reach_field.board[1,3].piece]
-        expect(board_pieces_reach_field.pieces_able_to_reach_field(destination_field, color)).to match(solution)
+    context 'when there is one piece able to reach the field' do
+      let(:destination_field){board_pieces_reach_field.board[6,5]}
+      let(:attack_color){:black}
+      before do
+        board_pieces_reach_field.board[5,4].piece = Pawn.new(:black, [5,4])
+        board_pieces_reach_field.black_pieces << board_pieces_reach_field.board[5,4].piece
+      end
+
+      it 'returns that piece in an array' do
+        solution = board_pieces_reach_field.pieces_able_to_reach_field(destination_field, attack_color)
+        expect(solution).to match([board_pieces_reach_field.board[5,4].piece])
+      end
+    end
+
+    context 'when there are two pieces able to reach the field' do
+      let(:destination_field){board_pieces_reach_field.board[6,5]}
+      let(:attack_color){:black}
+      before do
+        board_pieces_reach_field.board[5,4].piece = Pawn.new(:black, [5,4])
+        board_pieces_reach_field.black_pieces << board_pieces_reach_field.board[5,4].piece
+
+        board_pieces_reach_field.board[2,5].piece = Rook.new(:black, [2,5])
+        board_pieces_reach_field.black_pieces << board_pieces_reach_field.board[2,5].piece
+      end
+
+      it 'returns both pieces in an array' do
+        solution = board_pieces_reach_field.pieces_able_to_reach_field(destination_field, attack_color)
+        expect(solution).to match([board_pieces_reach_field.board[5,4].piece, board_pieces_reach_field.board[2,5].piece])
+      end
+    end
+
+    context 'when there are no pieces able to reach the field' do
+      let(:destination_field){board_pieces_reach_field.board[6,4]}
+      let(:attack_color){:black}
+      
+      it 'returns empty array' do
+        solution = board_pieces_reach_field.pieces_able_to_reach_field(destination_field, attack_color)
+        expect(solution).to match([])
       end
     end
   end
@@ -225,27 +262,66 @@ describe ChessBoard do
     end
 
     context 'when there is one unoccupied field' do
-      xit 'returns that empty field' do
-        
+      before do
+        board_king.board[6,5].piece = nil
+      end
+      it 'returns that empty field' do
+        solution = board_king.get_fields_king_can_escape_to(king)
+        expect(solution).to match([board_king.board[6,5]]) 
       end
     end
 
     context 'when there is one field occupied by the opponent' do
-      xit 'returns that field' do
+      before do
+        board_king.board[6,5].piece = double('Pawn', color: :black, position: [6,5])
+      end
+      it 'returns that field' do
+        solution = board_king.get_fields_king_can_escape_to(king)
+        expect(solution).to match([board_king.board[6,5]]) 
+      end
+    end
 
+
+    context 'when there is one unoccupied field and one field occupied by the opponent' do
+      before do
+        board_king.board[6,5].piece = double('Pawn', color: :black, position: [6,5])
+        board_king.board[6,4].piece = nil
+      end
+      it 'returns an array of those fields' do
+        solution = board_king.get_fields_king_can_escape_to(king)
+        expect(solution).to match([board_king.board[6,4], board_king.board[6,5]]) 
       end
     end
   end
 
-  describe '#field_endangered_by_opponent?' do
-    context 'when there is not field endagered by an opponent' do
-      xit 'returns false' do
-        
+  describe '#fields_not_endangered_by_opponent' do
+    subject(:board_king){described_class.new}
+    let(:king){board_king.board[7,4].piece}
+
+    context 'when there is no field endagered by an opponent' do
+      before do
+        board_king.board[6,5].piece = double('Pawn', color: :black, position: [6,5])
+        board_king.board[6,4].piece = nil
+      end
+      it 'returns all those fields in an array' do
+        safe_fields = [board_king.board[6,5], board_king.board[6,4]]
+        solution = board_king.fields_not_endangered_by_opponent(safe_fields, king)
+        expect(solution).to match(safe_fields)
       end
     end
 
     context 'when there is at least one field endangered by an opponent' do
-      
+      before do
+        board_king.board[6,5].piece = double('Pawn', color: :black, position: [6,5])
+        board_king.board[6,4].piece = nil
+        board_king.board[5,4].piece = double('Pawn', color: :black, position: [5,4])
+        allow(board_king).to receive(:pieces_able_to_reach_field).and_return([],[board_king.board[6,4]])
+      end
+      xit 'returns array without that field' do
+        safe_fields = [board_king.board[6,5], board_king.board[6,4]]
+        solution = board_king.fields_not_endangered_by_opponent(safe_fields, king)
+        expect(solution).to match([board_king.board[6,4]])
+      end
     end
   end
 end
