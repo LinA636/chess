@@ -297,30 +297,64 @@ describe ChessBoard do
   describe '#fields_not_endangered_by_opponent' do
     subject(:board_king){described_class.new}
     let(:king){board_king.board[7,4].piece}
+    let(:escape_fields){[board_king.board[6,5], board_king.board[6,4]]}
 
-    context 'when there is no field endagered by an opponent' do
+    context 'when there are two fields the king can escape to and none is endangered by an opponent' do
       before do
-        board_king.board[6,5].piece = double('Pawn', color: :black, position: [6,5])
+        board_king.white_pieces.delete(board_king.board[6,5].piece)
+        board_king.board[6,5].piece = Pawn.new(:black, [6,5])
+        board_king.black_pieces << board_king.board[6,5].piece
+
+        board_king.white_pieces.delete(board_king.board[6,4].piece)
         board_king.board[6,4].piece = nil
       end
+
       it 'returns all those fields in an array' do
-        safe_fields = [board_king.board[6,5], board_king.board[6,4]]
-        solution = board_king.fields_not_endangered_by_opponent(safe_fields, king)
-        expect(solution).to match(safe_fields)
+        solution = board_king.fields_not_endangered_by_opponent(escape_fields, king)
+        expect(solution).to match(escape_fields)
       end
     end
 
-    context 'when there is at least one field endangered by an opponent' do
+    context 'when there are two escape fields and one field is not endangered by an opponent' do
       before do
-        board_king.board[6,5].piece = double('Pawn', color: :black, position: [6,5])
+        board_king.white_pieces.delete(board_king.board[6,5].piece)
+        board_king.board[6,5].piece = Pawn.new(:black, [6,5])
+        board_king.black_pieces << board_king.board[6,5].piece
+
+        board_king.white_pieces.delete(board_king.board[6,4].piece)
         board_king.board[6,4].piece = nil
-        board_king.board[5,4].piece = double('Pawn', color: :black, position: [5,4])
-        allow(board_king).to receive(:pieces_able_to_reach_field).and_return([],[board_king.board[6,4]])
+        
+        # endangers [6,5]
+        board_king.board[5,4].piece = Pawn.new(:black, [5,4])
+        board_king.black_pieces << board_king.board[5,4].piece
       end
-      xit 'returns array without that field' do
-        safe_fields = [board_king.board[6,5], board_king.board[6,4]]
-        solution = board_king.fields_not_endangered_by_opponent(safe_fields, king)
+      
+      it 'returns array with that field' do
+        solution = board_king.fields_not_endangered_by_opponent(escape_fields, king)
         expect(solution).to match([board_king.board[6,4]])
+      end
+    end
+
+    context 'when there are two escape fields and both are endangered by an opponent' do
+      before do
+        board_king.white_pieces.delete(board_king.board[6,5].piece)
+        board_king.board[6,5].piece = Pawn.new(:black, [6,5])
+        board_king.black_pieces << board_king.board[6,5].piece
+
+        board_king.white_pieces.delete(board_king.board[6,4].piece)
+        board_king.board[6,4].piece = nil
+
+        # endangers [6,5]
+        board_king.board[5,4].piece = Pawn.new(:black, [5,4])
+        board_king.black_pieces << board_king.board[5,4].piece
+        #endangers [6,4]
+        board_king.board[4,2].piece = Bishop.new(:black, [4,2])
+        board_king.black_pieces << board_king.board[4,2].piece
+      end
+      
+      it 'returns an empty array' do
+        solution = board_king.fields_not_endangered_by_opponent(escape_fields, king)
+        expect(solution).to match([])
       end
     end
   end

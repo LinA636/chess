@@ -28,6 +28,52 @@ class ChessBoard
     Field.new(id, position)
   end
 
+  def setup_board
+    self.board.row(0).each_with_index do |field, column| 
+      case column
+      when 0, 7
+        field.piece = Rook.new(:black, field.position)
+      when 1, 6
+        field.piece = Knight.new(:black, field.position)
+      when 2, 5
+        field.piece = Bishop.new(:black, field.position)
+      when 3
+        field.piece = Queen.new(:black, field.position)
+      when 4
+        field.piece = King.new(:black, field.position)
+      end
+
+      self.black_pieces << field.piece
+    end
+
+    self.board.row(1).each_with_index do |field, column| 
+      field.piece = Pawn.new(:black,field.position)
+      self.black_pieces << field.piece
+    end
+
+    self.board.row(6).each_with_index do |field, column| 
+      field.piece = Pawn.new(:white, field.position)
+      self.white_pieces << field.piece
+    end
+
+    self.board.row(7).each_with_index do |field, column| 
+      case column
+      when 0, 7
+        field.piece = Rook.new(:white, field.position)
+      when 1, 6
+        field.piece = Knight.new(:white, field.position)
+      when 2, 5
+        field.piece = Bishop.new(:white, field.position)
+      when 3
+        field.piece = Queen.new(:white, field.position)
+      when 4
+        field.piece = King.new(:white, field.position)
+      end
+      self.white_pieces << field.piece
+    end
+  end
+
+  #-- printing methods --
   def print_board
     puts "  ---------------------------------"
     self.board.row_vectors.each_with_index do |row, row_index|
@@ -51,6 +97,8 @@ class ChessBoard
     puts
   end
 
+
+  #-- controll methods if move is valid --
   def valid_move?(start_field, end_field, current_player)
     # it is a valid move if
       # - the start_field is occupied by own piece
@@ -108,6 +156,8 @@ class ChessBoard
     end
   end
 
+
+  #-- move the piece --
   def move_piece(start_field, end_field, current_player)
     # start_field is already tested to occupie current_players piece
     # end_field is reachable without other pieces being in the way or being occupied by own piece
@@ -142,6 +192,8 @@ class ChessBoard
     start_field.piece = nil
   end
 
+
+  #-- help methods --
   def get_field(field_id)
     self.board.select{|field| field.id == field_id}.first
   end
@@ -154,51 +206,44 @@ class ChessBoard
     numbers_hash
   end
 
-  def setup_board
-    self.board.row(0).each_with_index do |field, column| 
-      case column
-      when 0, 7
-        field.piece = Rook.new(:black, field.position)
-      when 1, 6
-        field.piece = Knight.new(:black, field.position)
-      when 2, 5
-        field.piece = Bishop.new(:black, field.position)
-      when 3
-        field.piece = Queen.new(:black, field.position)
-      when 4
-        field.piece = King.new(:black, field.position)
-      end
+  def find_kings()
+    white_king = (self.white_pieces + self.captured_white_pieces).select{|piece|piece.instance_of?(King)}.first
+    black_king = (self.black_pieces + self.captured_black_pieces).select{|piece|piece.instance_of?(King)}.first
+    [white_king, black_king]
+  end
 
-      self.black_pieces << field.piece
-    end
-
-    self.board.row(1).each_with_index do |field, column| 
-      field.piece = Pawn.new(:black,field.position)
-      self.black_pieces << field.piece
-    end
-
-    self.board.row(6).each_with_index do |field, column| 
-      field.piece = Pawn.new(:white, field.position)
-      self.white_pieces << field.piece
-    end
-
-    self.board.row(7).each_with_index do |field, column| 
-      case column
-      when 0, 7
-        field.piece = Rook.new(:white, field.position)
-      when 1, 6
-        field.piece = Knight.new(:white, field.position)
-      when 2, 5
-        field.piece = Bishop.new(:white, field.position)
-      when 3
-        field.piece = Queen.new(:white, field.position)
-      when 4
-        field.piece = King.new(:white, field.position)
-      end
-      self.white_pieces << field.piece
+  def get_opposite_color(color)
+    if color == :white
+      return :black
+    else
+      return :white
     end
   end
 
+  def pieces_able_to_reach_field(destination_field, attack_color)
+    # selects all the pieces in given color, which can reach the destination field, without other pieces being in their way
+    if attack_color == :white
+      return self.white_pieces.select do |piece|
+          if piece.instance_of?(Pawn)
+            piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
+          else
+            piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
+          end
+        end
+    else
+      p self.black_pieces.length
+      return self.black_pieces.select do |piece|
+          if piece.instance_of?(Pawn)
+            piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
+          else
+            piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
+          end
+        end
+    end
+  end
+  
+
+  #-- check for victory --
   def victory?
     # returns winner color or false, if there is no victory
     kings = find_kings()
@@ -232,12 +277,6 @@ class ChessBoard
     return false
   end
 
-  def find_kings()
-    white_king = (self.white_pieces+self.captured_white_pieces).select{|piece|piece.instance_of?(King)}.first
-    black_king = (self.black_pieces+self.captured_black_pieces).select{|piece|piece.instance_of?(King)}.first
-    [white_king, black_king]
-  end
-
   def checkmate?(king)
     if king_can_escape?(king)
       return false
@@ -266,7 +305,7 @@ class ChessBoard
       return false
     else
       # check if that field is endangered by the opponent
-      return fields_not_endangered_by_opponent(escape_fields, king)
+      return fields_not_endangered_by_opponent(escape_fields, king).empty? ? false : true
     end
   end
 
@@ -296,44 +335,15 @@ class ChessBoard
     !pieces_able_to_reach_field(kings_field, king.color).empty?
   end
 
-  def get_opposite_color(color)
-    if color == :white
-      return :black
-    else
-      return :white
-    end
-  end
-
-  def pieces_able_to_reach_field(destination_field, attack_color)
-    # selects all the pieces in given color, which can reach the destination field, without other pieces being in their way
-    if attack_color == :white
-      return self.white_pieces.select do |piece|
-          if piece.instance_of?(Pawn)
-            piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
-          else
-            piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
-          end
-        end
-    else
-      p self.black_pieces.length
-      return self.black_pieces.select do |piece|
-          if piece.instance_of?(Pawn)
-            piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
-          else
-            piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
-          end
-        end
-    end
-  end
-
   def king_captured?(king)
     king.captured  
   end
 
+
+  #-- announcements --
   def announce_checkmate(color)
     puts "#{color} checkmate!"
   end
-
 
   def announce_check(color)
     puts "#{color} check!"
