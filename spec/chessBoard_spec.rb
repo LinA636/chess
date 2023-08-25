@@ -358,4 +358,24 @@ describe ChessBoard do
       end
     end
   end
+
+  describe '#update_end_field' do
+    
+  end
+
+  describe 'king_can_escape?' do
+    
+  end
+
+  describe '#sacrifice_possible?' do
+    
+  end
+
+  describe '#check?' do
+    
+  end
+
+  describe '#checkmate?' do
+    
+  end
 end
