@@ -360,12 +360,97 @@ describe ChessBoard do
   end
 
   describe '#update_end_field' do
-    
+    subject(:chess_board){described_class.new}
+    let(:moving_piece){chess_board.board[6,5].piece}
+
+    context 'when end_field is empty' do
+      let(:end_field){chess_board.board[5,5]}
+
+      it 'assigns moving_piece to that field' do
+        chess_board.update_end_field(end_field, moving_piece)
+        expect(chess_board.board[5,5].piece).to match(moving_piece)
+      end
+    end
+
+    context 'when end_field is occupied' do
+      let(:end_field){chess_board.board[5,6]}
+
+      context 'when piece is black' do
+        before do
+          chess_board.board[5,6].piece = Rook.new(:black, [5,6])
+          chess_board.black_pieces << chess_board.board[5,6].piece
+        end
+
+        it 'marks that piece as captured, saves it to captured_black_pieces, deletes it from black_pieces and assigns moving_piece to that field' do
+          captured_piece = chess_board.board[5,6].piece
+          chess_board.update_end_field(end_field, moving_piece)
+          expect(captured_piece.captured).to be true
+          expect(chess_board.captured_black_pieces).to include(captured_piece)
+          expect(chess_board.black_pieces).not_to include(captured_piece)
+          expect(chess_board.board[5,6].piece).to match(moving_piece)
+        end
+      end
+
+      context 'when piece is white' do
+        it 'marks that piece as captured, saves it to captured_white_pieces, deletes it from white_pieces and assigns moving_piece to that field' do
+          chess_board.update_end_field(end_field, moving_piece)
+        end
+
+        before do
+          chess_board.board[5,6].piece = Rook.new(:white, [5,6])
+          chess_board.white_pieces << chess_board.board[5,6].piece
+        end
+
+        it 'marks that piece as captured, saves it to captured_black_pieces, deletes it from black_pieces and assigns moving_piece to that field' do
+          captured_piece = chess_board.board[5,6].piece
+          chess_board.update_end_field(end_field, moving_piece)
+          expect(captured_piece.captured).to be true
+          expect(chess_board.captured_white_pieces).to include(captured_piece)
+          expect(chess_board.white_pieces).not_to include(captured_piece)
+          expect(chess_board.board[5,6].piece).to match(moving_piece)
+        end
+      end
+    end
   end
 
   describe 'king_can_escape?' do
-    
+    subject(:chess_board){described_class.new}    
+    let(:king){chess_board.board[7,4].piece} # white king
+    context 'when there is no field the king can go to' do
+      it 'returns false'do
+        solution = chess_board.king_can_escape?(king)
+        expect(solution).to be false
+      end
+    end
+
+    context 'when there is one field the king can go to' do
+      before do
+        chess_board.captured_white_pieces << chess_board.board[6,4].piece
+        chess_board.white_pieces.delete(chess_board.board[6,4].piece)
+        chess_board.board[6,4].piece = nil
+      end
+
+      context 'when that field is endangered by an opponent' do
+        before do
+          chess_board.board[2,4].piece = Rook.new(:black, [2,4])
+          chess_board.black_pieces << chess_board.board[2,4].piece
+        end
+
+        it 'returns false' do
+          solution = chess_board.king_can_escape?(king)
+          expect(solution).to be false
+        end
+      end
+
+      context 'when that field is not endangered by an opponent' do
+        it 'returns true' do
+          solution = chess_board.king_can_escape?(king)
+          expect(solution).to be true
+        end
+      end
+    end
   end
+
 
   describe '#sacrifice_possible?' do
     
