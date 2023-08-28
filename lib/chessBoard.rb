@@ -285,6 +285,8 @@ class ChessBoard
   end
 
   def checkmate?(king)
+    # king can be captured by the opponent within one move
+    # and the king cant move to a not endangered field or be saved by another piece
     if king_can_escape?(king)
       return false
     else
@@ -318,7 +320,9 @@ class ChessBoard
 
   def get_fields_king_can_escape_to(king)
     neighbour_fields_positions = king.next_movements
-    neighbour_fields = self.board.select{|field| neighbour_fields_positions.include?(field.position)}
+    #neighbour_fields = self.board.select{|field| neighbour_fields_positions.include?(field.position)}
+    neighbour_fields = neighbour_fields_positions.map{|position| get_field_with_position(position)}
+    
     neighbour_fields.select{|field| (field.empty? || field.occupies_opponent_piece?(get_opposite_color(king.color)))}.select{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color)).empty?}
   end
 
@@ -341,8 +345,21 @@ class ChessBoard
       # check if king is reachable, by any of opponents pieces
       # check if the king can move to another field (empty field or field occupied by opponent?)
       # check if there is another piece which can be sacrifieced
-    kings_field = self.board[king.position.first, king.position.last]
-    !pieces_able_to_reach_field(kings_field, king.color).empty?
+    king_field = get_field_with_position(king.position)
+    pieces_attacking_king = pieces_able_to_reach_field(king_field, get_opposite_color(king.color))
+    if pieces_attacking_king.empty?
+      # check if king can escape
+      if king_can_escape?(king)
+        return true
+      else
+        # check if another piece can be sacrificed
+        return sacrifice_possible?(king, pieces_attacking_king) ? true : false
+      end
+    
+    else
+      return false
+    end
+
   end
 
   def king_captured?(king)
