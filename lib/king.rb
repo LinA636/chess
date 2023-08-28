@@ -20,7 +20,7 @@ class King < Piece
     super(MOVEMENTS)
   end
 
-  def chosen_destination_reachable?(end_field)
+  def chosen_destination_reachable?(end_field, take_move = " ")
     super(next_movements, end_field)
   end
 
