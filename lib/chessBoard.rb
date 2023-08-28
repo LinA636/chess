@@ -224,26 +224,18 @@ class ChessBoard
     end
   end
 
-  def pieces_able_to_reach_field(destination_field, attack_color)
+  def pieces_able_to_reach_field(destination_field, attack_color, take_move = ' ')
     # selects all the pieces in given color, which can reach the destination field, without other pieces being in their way
     if attack_color == :white
       return self.white_pieces.select do |piece|
-          unless piece.instance_of?(King)  
-            if piece.instance_of?(Pawn)
-              piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
-            else
-              piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
-            end
+          unless piece.instance_of?(King)
+            piece.chosen_destination_reachable?(destination_field, take_move) && clear_way?(piece.get_field_positions_on_way(destination_field))
           end
         end
     else
       return self.black_pieces.select do |piece|
           unless piece.instance_of?(King)
-            if piece.instance_of?(Pawn)
-              piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
-            else
-              piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
-            end
+            piece.chosen_destination_reachable?(destination_field, take_move) && clear_way?(piece.get_field_positions_on_way(destination_field))
           end
         end
     end
@@ -328,7 +320,7 @@ class ChessBoard
 
   def fields_not_endangered_by_opponent(escape_fields, king)
     #returns those fields, which are not endangered by an opponent piece
-    escape_fields.select{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color)).empty?}
+    escape_fields.select{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color), 'take').empty?}
   end
 
   def sacrifice_possible?(king, pieces_attacking_king)
@@ -337,7 +329,10 @@ class ChessBoard
     #get fields inbetween the pieces attacking the king and the king
     field_positions_inbetween = pieces_attacking_king.map{|piece| piece.get_field_positions_on_way(king_field)}.flatten(1)
     fields_inbetween = field_positions_inbetween.map{|position| get_field_with_position(position)}
-    return fields_inbetween.any?{|field| !pieces_able_to_reach_field(field, king.color).empty?}
+    fields_inbetween.any? do |field| 
+      take_move = (field.piece == nil ? "move" : "take")
+      !pieces_able_to_reach_field(field, king.color, take_move).empty?
+    end
   end
 
   def check?(king)
@@ -347,15 +342,14 @@ class ChessBoard
       # check if there is another piece which can be sacrifieced
     king_field = get_field_with_position(king.position)
     pieces_attacking_king = pieces_able_to_reach_field(king_field, get_opposite_color(king.color))
-    if pieces_attacking_king.empty?
+    unless pieces_attacking_king.empty?
       # check if king can escape
       if king_can_escape?(king)
         return true
       else
         # check if another piece can be sacrificed
-        return sacrifice_possible?(king, pieces_attacking_king) ? true : false
+        return sacrifice_possible?(king, pieces_attacking_king)
       end
-    
     else
       return false
     end
