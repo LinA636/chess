@@ -453,7 +453,78 @@ describe ChessBoard do
 
 
   describe '#sacrifice_possible?' do
-    
+    before do
+      #preparing the board -> no pieces aroung the king
+      chess_board.captured_white_pieces << chess_board.board[6,3].piece
+      chess_board.white_pieces.delete(chess_board.board[6,3].piece)
+      chess_board.board[6,3].piece = nil
+
+      chess_board.captured_white_pieces << chess_board.board[6,4].piece
+      chess_board.white_pieces.delete(chess_board.board[6,4].piece)
+      chess_board.board[6,4].piece = nil
+
+      chess_board.captured_white_pieces << chess_board.board[6,5].piece
+      chess_board.white_pieces.delete(chess_board.board[6,5].piece)
+      chess_board.board[6,5].piece = nil
+
+      chess_board.captured_white_pieces << chess_board.board[7,3].piece
+      chess_board.white_pieces.delete(chess_board.board[7,3].piece)
+      chess_board.board[7,3].piece = nil
+
+      chess_board.captured_white_pieces << chess_board.board[7,5].piece
+      chess_board.white_pieces.delete(chess_board.board[7,5].piece)
+      chess_board.board[7,5].piece = nil
+
+      # an opponent rook attacking the king
+      chess_board.board[2,4].piece = Rook.new(:black, [2,4])
+      chess_board.black_pieces << Rook.new(:black, [2,4])
+    end
+
+    subject(:chess_board){described_class.new}
+    let(:king){chess_board.board[7,4].piece}
+    let(:pieces_attacking_king){[chess_board.board[2,4].piece]}
+
+    context 'when there is no other piece to be sacrificed' do
+      before do
+        # no knight to save the king
+        chess_board.captured_white_pieces << chess_board.board[7,6].piece
+        chess_board.white_pieces.delete(chess_board.board[7,6].piece)
+        chess_board.board[7,5].piece = nil
+        # no bishop to save the king
+        chess_board.captured_white_pieces << chess_board.board[7,2].piece
+        chess_board.white_pieces.delete(chess_board.board[7,2].piece)
+        chess_board.board[7,2].piece = nil
+      end
+
+      it 'returns false' do
+        solution = chess_board.sacrifice_possible?(king, pieces_attacking_king)
+        expect(solution).to be false
+      end
+    end
+
+    context 'when there is one piece to be sacrificed' do
+      before do
+        # no knight to save the king
+        chess_board.captured_white_pieces << chess_board.board[7,6].piece
+        chess_board.white_pieces.delete(chess_board.board[7,6].piece)
+        chess_board.board[7,5].piece = nil
+      end
+
+      it 'returns true' do
+        # there is a bishop on field [7,2], which can move to field [5,4] to save the king
+        solution = chess_board.sacrifice_possible?(king, pieces_attacking_king)
+        expect(solution).to be true
+      end
+    end
+
+    context 'when there are two pieces to be sacrificed' do
+      it 'returns true' do
+        # there is a bishop on field [7,2], which can move to field [5,4] to save the king
+        # and a knight on [7,6], which can be moved to [6,4]
+        solution = chess_board.sacrifice_possible?(king, pieces_attacking_king)
+        expect(solution).to be true
+      end
+    end
   end
 
   describe '#check?' do

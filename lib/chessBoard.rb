@@ -198,6 +198,10 @@ class ChessBoard
     self.board.select{|field| field.id == field_id}.first
   end
 
+  def get_field_with_position(field_position)
+    self.board.select{|field| field.position == field_position}.first
+  end
+
   def get_number_to_letter_hash
     # converts the number 0..7 to the letters a..h
     letters = ('a'..'h').to_a
@@ -224,19 +228,22 @@ class ChessBoard
     # selects all the pieces in given color, which can reach the destination field, without other pieces being in their way
     if attack_color == :white
       return self.white_pieces.select do |piece|
-          if piece.instance_of?(Pawn)
-            piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
-          else
-            piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
+          unless piece.instance_of?(King)  
+            if piece.instance_of?(Pawn)
+              piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
+            else
+              piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
+            end
           end
         end
     else
-      p self.black_pieces.length
       return self.black_pieces.select do |piece|
-          if piece.instance_of?(Pawn)
-            piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
-          else
-            piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
+          unless piece.instance_of?(King)
+            if piece.instance_of?(Pawn)
+              piece.chosen_destination_reachable?(destination_field, "take") && clear_way?(piece.get_field_positions_on_way(destination_field))
+            else
+              piece.chosen_destination_reachable?(destination_field) && clear_way?(piece.get_field_positions_on_way(destination_field))
+            end
           end
         end
     end
@@ -322,7 +329,10 @@ class ChessBoard
 
   def sacrifice_possible?(king, pieces_attacking_king)
     # check if there is another piece of the kings color to be moved between king and its opponent
-    fields_inbetween = pieces_attacking_king.first.get_field_positions_on_way(king.position)
+    king_field = get_field_with_position(king.position)
+    #get fields inbetween the pieces attacking the king and the king
+    field_positions_inbetween = pieces_attacking_king.map{|piece| piece.get_field_positions_on_way(king_field)}.flatten(1)
+    fields_inbetween = field_positions_inbetween.map{|position| get_field_with_position(position)}
     return fields_inbetween.any?{|field| !pieces_able_to_reach_field(field, king.color).empty?}
   end
 
