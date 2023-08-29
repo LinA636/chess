@@ -277,14 +277,17 @@ class ChessBoard
   end
 
   def checkmate?(king)
-    # king is check
-    # and the king cant move to a not endangered field or be saved by another piece
-    if check?(king)
-      # check if king can escape
-      king_field = get_field_with_position(king.position)
-      pieces_attacking_king = pieces_able_to_reach_field(king_field, get_opposite_color(king.color))
+    # king is under attack 
+    # and the king cant move to a not endangered field 
+    # or be saved by another piece
+    p king
+    king_field = get_field_with_position(king.position)
+    pieces_attacking_king = pieces_able_to_reach_field(king_field, get_opposite_color(king.color))
+    unless pieces_attacking_king.empty?  
+      # check if there is no escape and no possible sacrifice
       return (!king_can_escape?(king) && !sacrifice_possible?(king, pieces_attacking_king)) ? true : false
     else
+      # king is not under attack
       return false
     end
   end
@@ -296,6 +299,8 @@ class ChessBoard
       return false
     else
       # check if that field is endangered by the opponent
+      p "\nking can escape to:"
+      p fields_not_endangered_by_opponent(escape_fields, king)
       return fields_not_endangered_by_opponent(escape_fields, king).empty? ? false : true
     end
   end
@@ -332,17 +337,30 @@ class ChessBoard
       # check if there is another piece which can be sacrifieced
     king_field = get_field_with_position(king.position)
     pieces_attacking_king = pieces_able_to_reach_field(king_field, get_opposite_color(king.color))
-    unless pieces_attacking_king.empty?
-      # check if king can escape or if another piece can be sacrificed
-      return (king_can_escape?(king) || sacrifice_possible?(king, pieces_attacking_king)) ? true : false
-    else
+    if pieces_attacking_king.empty?
       # king is not under attack
       return false
+    elsif pieces_attacking_king.length == 1
+      # check if king can escape or if another piece can be sacrificed
+      return (attacker_can_be_taken?(pieces_attacking_king, king) || king_can_escape?(king) || sacrifice_possible?(king, pieces_attacking_king)) ? true : false
+    else
+      # more than one piece attacking
+      return true
     end
   end
 
   def king_captured?(king)
     king.captured  
+  end
+
+  def attacker_can_be_taken?(pieces_attacking_king, king)
+    # check if attacker_pieces can be taken
+    if pieces_attacking_king.length > 1
+      return false
+    else
+      fields_pieces_attacking_king = pieces_attacking_king.map{|piece| get_field_with_position(piece.position)}
+      fields_pieces_attacking_king.any?{|field| !pieces_able_to_reach_field(field, king.color, 'take').empty?} 
+    end
   end
 
 

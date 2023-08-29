@@ -513,6 +513,52 @@ describe ChessBoard do
     end
   end
 
+  describe '#attacker_can_be_taken' do
+    let(:king){chess_board.board[7,4].piece}
+    before do
+      # prepare board
+      chess_board.board[2,4].piece = Rook.new(:black, [2,4])
+      chess_board.black_pieces << chess_board.board[2,4].piece
+
+      chess_board.board[5,3].piece = Knight.new(:black, [5,3])
+      chess_board.black_pieces << chess_board.board[5,3].piece
+    end
+
+    context 'when there are more than one attacker' do
+      let(:pieces_attacking_king){[chess_board.board[2,4].piece, chess_board.board[5,3].piece]}
+      
+      it 'returns false' do
+        solution = chess_board.attacker_can_be_taken?(pieces_attacking_king, king)
+        expect(solution).to be false
+      end
+    end
+
+    context 'when there is one attacker' do
+      let(:pieces_attacking_king){[chess_board.board[2,4].piece]}
+      
+      context 'when attacker can be taken' do
+        before do
+          # position a white pawn to take the attacker
+          chess_board.board[3,3].piece = Pawn.new(:white, [3,3])
+          chess_board.white_pieces << chess_board.board[3,3].piece
+        end
+        it 'returns true' do
+          solution = chess_board.attacker_can_be_taken?(pieces_attacking_king, king)
+          expect(solution).to be true
+        end
+      end
+
+      context 'when attacker cannot be taken' do
+        it 'returns false' do
+          solution = chess_board.attacker_can_be_taken?(pieces_attacking_king, king)
+          expect(solution).to be false
+        end
+      end
+    end
+
+    
+  end
+
   describe '#check?' do
     let(:king){chess_board.board[7,4].piece} # white king
     
@@ -563,22 +609,131 @@ describe ChessBoard do
         context 'when no other piece can be sacrificed' do
           before do
             # move king to field [6,4], as from there it cant be saved by another piece
-            chess_board.board[6,4].piece = chess_board.board[6,5].piece
-            chess_board.board[6,5].piece = nil
+            chess_board.board[7,4].piece.position = [6,4]
+            chess_board.board[6,4].piece = chess_board.board[7,4].piece
+            chess_board.board[7,4].piece = nil
+
+            # set rooks to its side and pawns on top of them
+            # move pawn from [6,3] to [5,3]
+            chess_board.board[6,3].piece.position = [5,3]
+            chess_board.board[5,3].piece = chess_board.board[6,3].piece
+            # position rook on [6,3]
+            chess_board.board[6,3].piece = Rook.new(:white, [6,3])
+            chess_board.white_pieces << chess_board.board[6,3].piece
+            # position pawn on [5,5]
+            chess_board.board[5,5].piece = Pawn.new(:white, [5,5])
+            chess_board.white_pieces << chess_board.board[5,5].piece
+            # position rook on [6,5]
+            chess_board.board[6,5].piece = Rook.new(:white, [6,5])
+            chess_board.white_pieces << chess_board.board[6,5].piece
+
+            # occupy [7,4] by another own piece
+            chess_board.board[7,4].piece = Rook.new(:white, [7,4])
+            chess_board.white_pieces << chess_board.board[7,4].piece
           end
 
+          let(:moved_king){chess_board.board[6,4].piece}
           it 'returns false' do
-            solution = chess_board.check?(king)
+            solution = chess_board.check?(moved_king)
             expect(solution).to be false
           end
         end
-        
+      end
+
+      context 'when opponent can be taken' do
+        before do
+          # position own piece to take opponent
+          chess_board.board[3,3].piece = Pawn.new(:white, [3,3])
+          chess_board.white_pieces << chess_board.board[3,3].piece
+        end
+
+        xit 'returns true' do
+          solution = chess_board.check?(king)
+          expect(solution).to be false
+        end
+      end
+    end
+
+    context 'when there are two attackers' do
+      before do
+        # set knight to attack king as well
+        chess_board.board[5,3].piece = Knight.new(:black, [5,3])
+        chess_board.black_pieces << chess_board.board[5,3].piece
+      end
+      it 'returns true' do
+          solution = chess_board.check?(king)
+          expect(solution).to be true
       end
     end
     
   end
 
   describe '#checkmate?' do
+    subject(:chess_board){described_class.new}
+    let(:king){chess_board.board[7,4].piece}
     
+    context 'when king is under attack' do
+      before do
+        # prepare board
+        #remove pawn above king
+        chess_board.captured_white_pieces << chess_board.board[6,4].piece
+        chess_board.white_pieces.delete(chess_board.board[6,4].piece)
+        chess_board.board[6,4].piece = nil
+  
+        # set rook attacking king from above
+        chess_board.board[2,4].piece = Rook.new(:black, [2,4])
+        chess_board.black_pieces << Rook.new(:black, [2,4])
+      end
+      
+      context 'when king can escape' do
+        before do
+          #remove pawn diagonal of king, so king can escape
+          chess_board.captured_white_pieces << chess_board.board[6,5].piece
+          chess_board.white_pieces.delete(chess_board.board[6,5].piece)
+          chess_board.board[6,5].piece = nil
+        end
+
+        it 'returns false' do
+          solution = chess_board.checkmate?(king)
+          expect(solution).to be false
+        end
+      end
+
+      context 'when another piece can be sacrificed' do
+        before do
+          # move king to field [6,4], as from there it cant be saved by another piece
+          chess_board.board[6,4].piece = chess_board.board[6,5].piece
+          chess_board.board[6,5].piece = nil
+        end
+
+        it 'returns false' do
+          solution = chess_board.checkmate?(king)
+          expect(solution).to be false
+        end
+      end
+
+      context 'when king cant be saved' do
+        before do
+          # move king to field [6,4], as from there it cant be saved by another piece
+          chess_board.board[7,4].piece.position = [6,4]
+          chess_board.board[6,4].piece = chess_board.board[7,4].piece
+          chess_board.board[7,4].piece = nil
+        end
+
+        let(:king){chess_board.board[6,4].piece}
+
+        xit 'returns true' do
+          solution = chess_board.checkmate?(king)
+          expect(solution).to be true
+        end
+      end
+    end
+
+    context 'when king is not under attack' do
+      xit 'returns false' do
+        solution = chess_board.checkmate?(king)
+        expect(solution).to be false
+      end
+    end
   end
 end
