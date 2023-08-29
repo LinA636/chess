@@ -277,26 +277,16 @@ class ChessBoard
   end
 
   def checkmate?(king)
-    # king can be captured by the opponent within one move
+    # king is check
     # and the king cant move to a not endangered field or be saved by another piece
-    if king_can_escape?(king)
-      return false
+    if check?(king)
+      # check if king can escape
+      king_field = get_field_with_position(king.position)
+      pieces_attacking_king = pieces_able_to_reach_field(king_field, get_opposite_color(king.color))
+      return (king_can_escape?(king) || sacrifice_possible?(king, pieces_attacking_king)) ? false : true
     else
-      kings_field = self.board[king.position]
-      pieces_attacking_king = pieces_able_to_reach_field(kings_field, get_opposite_color(king.color))
-      if pieces_attacking_king.length > 1
-        return true
-      elsif pieces_attacking_king.length == 0
-        return false
-      else
-        if sacrifice_possible?(king, pieces_attacking_king)
-          return false
-        else
-          return true
-        end
-      end
+      return false
     end
-    return false
   end
 
   def king_can_escape?(king)
@@ -343,17 +333,12 @@ class ChessBoard
     king_field = get_field_with_position(king.position)
     pieces_attacking_king = pieces_able_to_reach_field(king_field, get_opposite_color(king.color))
     unless pieces_attacking_king.empty?
-      # check if king can escape
-      if king_can_escape?(king)
-        return true
-      else
-        # check if another piece can be sacrificed
-        return sacrifice_possible?(king, pieces_attacking_king)
-      end
+      # check if king can escape or if another piece can be sacrificed
+      return (king_can_escape?(king) || sacrifice_possible?(king, pieces_attacking_king)) ? true : false
     else
+      # king is not under attack
       return false
     end
-
   end
 
   def king_captured?(king)
