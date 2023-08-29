@@ -283,7 +283,7 @@ class ChessBoard
       # check if king can escape
       king_field = get_field_with_position(king.position)
       pieces_attacking_king = pieces_able_to_reach_field(king_field, get_opposite_color(king.color))
-      return (king_can_escape?(king) || sacrifice_possible?(king, pieces_attacking_king)) ? false : true
+      return (!king_can_escape?(king) && !sacrifice_possible?(king, pieces_attacking_king)) ? true : false
     else
       return false
     end
