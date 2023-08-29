@@ -299,8 +299,6 @@ class ChessBoard
       return false
     else
       # check if that field is endangered by the opponent
-      p "\nking can escape to:"
-      p fields_not_endangered_by_opponent(escape_fields, king)
       return fields_not_endangered_by_opponent(escape_fields, king).empty? ? false : true
     end
   end
@@ -341,11 +339,12 @@ class ChessBoard
       # king is not under attack
       return false
     elsif pieces_attacking_king.length == 1
-      # check if king can escape or if another piece can be sacrificed
+      # check if king can escape or if another piece can be sacrificed or the attaker can be taken
       return (attacker_can_be_taken?(pieces_attacking_king, king) || king_can_escape?(king) || sacrifice_possible?(king, pieces_attacking_king)) ? true : false
     else
-      # more than one piece attacking
-      return true
+      p "attakcs"
+      p pieces_attacking_king
+      return king_can_escape?(king)
     end
   end
 
