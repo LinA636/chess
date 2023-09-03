@@ -784,12 +784,16 @@ describe ChessBoard do
             chess_board.board[6,4].piece = chess_board.board[7,4].piece
             chess_board.board[7,4].piece = nil
 
-            # position another piece on [7,4], so king cant move away
+            # position another piece on [5,3] and [5,5]
+            chess_board.board[5,3].piece = Pawn.new(:black, [5,3])
+            chess_board.black_pieces << chess_board.board[5,3].piece
+            chess_board.board[5,5].piece = Pawn.new(:black, [5,5])
+            chess_board.black_pieces << chess_board.board[5,5].piece
           end
 
           let(:king){chess_board.board[6,4].piece}
-
-          xit 'returns true' do
+ 
+          it 'returns true' do
             solution = chess_board.checkmate?(king)
             expect(solution).to be true
           end
