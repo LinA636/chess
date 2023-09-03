@@ -382,14 +382,14 @@ describe ChessBoard do
         chess_board.board[5,5].piece = Pawn.new(:white, [5,5])
         chess_board.white_pieces << chess_board.board[5,5].piece
 
-        # postion opponent rook to attack king
+        # postion opponent-rook to attack king
         chess_board.board[2,4].piece = Rook.new(:black, [2,4])
         chess_board.black_pieces << chess_board.board[2,4].piece
       end
 
       let(:escape_fields) {[chess_board.board[5,4], chess_board.board[7,4]]}
       let(:king){chess_board.board[6,4].piece}
-      it 'returns false' do
+      it 'returns empty field' do
         solution = chess_board.fields_not_endangered_by_opponent(escape_fields, king)
         expect(solution).to match([])
       end
@@ -791,10 +791,10 @@ describe ChessBoard do
             chess_board.black_pieces << chess_board.board[5,5].piece
           end
 
-          let(:king){chess_board.board[6,4].piece}
+          let(:dead_king){chess_board.board[6,4].piece}
  
           it 'returns true' do
-            solution = chess_board.checkmate?(king)
+            solution = chess_board.checkmate?(dead_king)
             expect(solution).to be true
           end
         end
