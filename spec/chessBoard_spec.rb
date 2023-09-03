@@ -303,17 +303,19 @@ describe ChessBoard do
     let(:king){chess_board.board[7,4].piece}
     let(:escape_fields){[chess_board.board[6,5], chess_board.board[6,4]]}
 
-    before do
-      chess_board.white_pieces.delete(chess_board.board[6,5].piece)
-      chess_board.board[6,5].piece = Pawn.new(:black, [6,5])
-      chess_board.black_pieces << chess_board.board[6,5].piece
-
-      chess_board.white_pieces.delete(chess_board.board[6,4].piece)
-      chess_board.board[6,4].piece = nil
-    end
-
     context 'when there are two fields the king can escape to and none is endangered by an opponent' do
-       it 'returns all those fields in an array' do
+      before do
+        # prepare board
+        # put opponent on [6,5] to attack king
+        chess_board.white_pieces.delete(chess_board.board[6,5].piece)
+        chess_board.board[6,5].piece = Pawn.new(:black, [6,5])
+        chess_board.black_pieces << chess_board.board[6,5].piece
+        # empty field above king
+        chess_board.white_pieces.delete(chess_board.board[6,4].piece)
+        chess_board.board[6,4].piece = nil
+      end
+
+      it 'returns all those fields in an array' do
         solution = chess_board.fields_not_endangered_by_opponent(escape_fields, king)
         expect(solution).to match(escape_fields)
       end
@@ -321,6 +323,14 @@ describe ChessBoard do
 
     context 'when there are two escape fields and one field is not endangered by an opponent' do
       before do
+        # prepare board
+        # put opponent on [6,5] to attack king
+        chess_board.white_pieces.delete(chess_board.board[6,5].piece)
+        chess_board.board[6,5].piece = Pawn.new(:black, [6,5])
+        chess_board.black_pieces << chess_board.board[6,5].piece
+        # empty field above king
+        chess_board.white_pieces.delete(chess_board.board[6,4].piece)
+        chess_board.board[6,4].piece = nil
         # endangers [6,5]
         chess_board.board[5,4].piece = Pawn.new(:black, [5,4])
         chess_board.black_pieces << chess_board.board[5,4].piece
@@ -334,6 +344,14 @@ describe ChessBoard do
 
     context 'when there are two escape fields and both are endangered by an opponent' do
       before do
+        # prepare board
+        # put opponent on [6,5] to attack king
+        chess_board.white_pieces.delete(chess_board.board[6,5].piece)
+        chess_board.board[6,5].piece = Pawn.new(:black, [6,5])
+        chess_board.black_pieces << chess_board.board[6,5].piece
+        # empty field above king
+        chess_board.white_pieces.delete(chess_board.board[6,4].piece)
+        chess_board.board[6,4].piece = nil
         # endangers [6,5]
         chess_board.board[5,4].piece = Pawn.new(:black, [5,4])
         chess_board.black_pieces << chess_board.board[5,4].piece
@@ -343,6 +361,35 @@ describe ChessBoard do
       end
       
       it 'returns an empty array' do
+        solution = chess_board.fields_not_endangered_by_opponent(escape_fields, king)
+        expect(solution).to match([])
+      end
+    end
+
+    context 'when there is one field the king itself protects' do
+      before do
+        # empty field [6,4]
+        chess_board.captured_white_pieces << chess_board.board[6,4].piece
+        chess_board.white_pieces.delete(chess_board.board[6,4].piece)
+        # move king to field [6,4]
+        chess_board.board[7,4].piece.position = [6,4]
+        chess_board.board[6,4].piece = chess_board.board[7,4].piece
+        chess_board.board[7,4].piece = nil
+
+        # position pieces on  [5,3] and [5,5] to prevent king moving there
+        chess_board.board[5,3].piece = Pawn.new(:white, [5,3])
+        chess_board.white_pieces << chess_board.board[5,3].piece
+        chess_board.board[5,5].piece = Pawn.new(:white, [5,5])
+        chess_board.white_pieces << chess_board.board[5,5].piece
+
+        # postion opponent rook to attack king
+        chess_board.board[2,4].piece = Rook.new(:black, [2,4])
+        chess_board.black_pieces << chess_board.board[2,4].piece
+      end
+
+      let(:escape_fields) {[chess_board.board[5,4], chess_board.board[7,4]]}
+      let(:king){chess_board.board[6,4].piece}
+      it 'returns false' do
         solution = chess_board.fields_not_endangered_by_opponent(escape_fields, king)
         expect(solution).to match([])
       end
@@ -701,53 +748,57 @@ describe ChessBoard do
         chess_board.board[2,4].piece = Rook.new(:black, [2,4])
         chess_board.black_pieces << Rook.new(:black, [2,4])
       end
-      
-      context 'when king can escape' do
-        before do
-          #remove pawn diagonal of king, so king can escape
-          chess_board.captured_white_pieces << chess_board.board[6,5].piece
-          chess_board.white_pieces.delete(chess_board.board[6,5].piece)
-          chess_board.board[6,5].piece = nil
+
+      context 'when there is one attacker' do
+        context 'when king can escape' do
+          before do
+            #remove pawn diagonal of king, so king can escape
+            chess_board.captured_white_pieces << chess_board.board[6,5].piece
+            chess_board.white_pieces.delete(chess_board.board[6,5].piece)
+            chess_board.board[6,5].piece = nil
+          end
+
+          it 'returns false' do
+            solution = chess_board.checkmate?(king)
+            expect(solution).to be false
+          end
         end
 
-        it 'returns false' do
-          solution = chess_board.checkmate?(king)
-          expect(solution).to be false
-        end
-      end
+        context 'when another piece can be sacrificed' do
+          before do
+            # move king to field [6,4], as from there it cant be saved by another piece
+            chess_board.board[6,4].piece = chess_board.board[6,5].piece
+            chess_board.board[6,5].piece = nil
+          end
 
-      context 'when another piece can be sacrificed' do
-        before do
-          # move king to field [6,4], as from there it cant be saved by another piece
-          chess_board.board[6,4].piece = chess_board.board[6,5].piece
-          chess_board.board[6,5].piece = nil
-        end
-
-        it 'returns false' do
-          solution = chess_board.checkmate?(king)
-          expect(solution).to be false
-        end
-      end
-
-      context 'when king cant be saved' do
-        before do
-          # move king to field [6,4], as from there it cant be saved by another piece
-          chess_board.board[7,4].piece.position = [6,4]
-          chess_board.board[6,4].piece = chess_board.board[7,4].piece
-          chess_board.board[7,4].piece = nil
+          it 'returns false' do
+            solution = chess_board.checkmate?(king)
+            expect(solution).to be false
+          end
         end
 
-        let(:king){chess_board.board[6,4].piece}
+        context 'when king cant be saved' do
+          before do
+            # move king to field [6,4], as from there it cant be saved by another piece
+            chess_board.board[7,4].piece.position = [6,4]
+            chess_board.board[6,4].piece = chess_board.board[7,4].piece
+            chess_board.board[7,4].piece = nil
 
-        xit 'returns true' do
-          solution = chess_board.checkmate?(king)
-          expect(solution).to be true
+            # position another piece on [7,4], so king cant move away
+          end
+
+          let(:king){chess_board.board[6,4].piece}
+
+          xit 'returns true' do
+            solution = chess_board.checkmate?(king)
+            expect(solution).to be true
+          end
         end
-      end
+      end     
     end
 
     context 'when king is not under attack' do
-      xit 'returns false' do
+      it 'returns false' do
         solution = chess_board.checkmate?(king)
         expect(solution).to be false
       end

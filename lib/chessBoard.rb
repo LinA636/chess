@@ -242,7 +242,7 @@ class ChessBoard
         end
     end
   end
-  
+
 
   #-- check for victory --
   def victory?
@@ -334,8 +334,13 @@ class ChessBoard
   end
 
   def fields_not_endangered_by_opponent(escape_fields, king)
-    #returns those fields, which are not endangered by an opponent piece
-    escape_fields.select{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color), 'take').empty?}
+    # remove king temporary from board so that we can test which fields are under attack and which are not
+    self.board[king.position.first, king.position.last].piece = nil
+    # returns those fields, which are not endangered by an opponent piece
+    fields = escape_fields.select{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color), 'take').empty?}
+    # set king back onto the board
+    self.board[king.position.first, king.position.last].piece = king
+    return fields
   end
 
   def sacrifice_possible?(king, pieces_attacking_king)
