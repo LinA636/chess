@@ -785,10 +785,10 @@ describe ChessBoard do
             chess_board.board[7,4].piece = nil
 
             # position another piece on [5,3] and [5,5]
-            chess_board.board[5,3].piece = Pawn.new(:black, [5,3])
-            chess_board.black_pieces << chess_board.board[5,3].piece
-            chess_board.board[5,5].piece = Pawn.new(:black, [5,5])
-            chess_board.black_pieces << chess_board.board[5,5].piece
+            chess_board.board[5,3].piece = Pawn.new(:white, [5,3])
+            chess_board.white_pieces << chess_board.board[5,3].piece
+            chess_board.board[5,5].piece = Pawn.new(:white, [5,5])
+            chess_board.white_pieces << chess_board.board[5,5].piece
           end
 
           let(:dead_king){chess_board.board[6,4].piece}
@@ -798,7 +798,36 @@ describe ChessBoard do
             expect(solution).to be true
           end
         end
-      end     
+      end 
+      
+      context 'when there are two attackers' do
+        before do
+          # set knight attacking king
+          chess_board.board[5,5].piece = Knight.new(:black, [5,5])
+          chess_board.black_pieces << Knight.new(:black, [5,5])
+        end
+
+        context 'when king can escape' do
+          before do
+            # empty field [6,5] so king can escape
+            chess_board.captured_white_pieces << chess_board.board[6,5].piece
+            chess_board.white_pieces.delete(chess_board.board[6,5].piece)
+            chess_board.board[6,5].piece.captured = true
+            chess_board.board[6,5].piece = nil
+          end
+          it 'returns false'do
+            solution = chess_board.checkmate?(king)
+            expect(solution).to be false
+          end
+        end
+
+        context 'when king cannot escape' do
+          it 'returns true' do
+            solution = chess_board.checkmate?(king)
+            expect(solution).to be true
+          end
+        end
+      end    
     end
 
     context 'when king is not under attack' do
@@ -807,5 +836,7 @@ describe ChessBoard do
         expect(solution).to be false
       end
     end
+
+    
   end
 end

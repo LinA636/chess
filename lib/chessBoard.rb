@@ -284,16 +284,13 @@ class ChessBoard
     # or be saved by another piece
     king_field = get_field_with_position(king.position)
     pieces_attacking_king = pieces_able_to_reach_field(king_field, get_opposite_color(king.color))
-    p pieces_attacking_king
     if pieces_attacking_king.empty?  
       # king is not under attack
       return false
     elsif pieces_attacking_king.length == 1
       # check if there is no escape and no possible sacrifice
-      p king
       return !(king_can_escape?(king) || sacrifice_possible?(king, pieces_attacking_king))
     else
-      p king
       return !king_can_escape?(king)
     end
   end
