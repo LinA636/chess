@@ -129,15 +129,6 @@ class ChessBoard
     end
   end
 
-  def clear_way?(positions_inbetween)
-    fields_inbetween = self.board.select {|field| positions_inbetween.include?(field.position)}
-    if fields_inbetween.all?{|field| !field.occupies_piece?}
-      return true
-    end
-    puts "Choose a destination with a clear way: "
-    false
-  end
-
   def valid_end_field?(moving_piece, end_field, current_player)
     # either field is unoccupied or its occupied by the opponent
     # if moving_piece is a pawn check if it is making a move or a taking
@@ -154,6 +145,15 @@ class ChessBoard
       puts "Choose a valid destination: "
       false
     end
+  end
+
+  def clear_way?(positions_inbetween)
+    fields_inbetween = self.board.select {|field| positions_inbetween.include?(field.position)}
+    if fields_inbetween.all?{|field| !field.occupies_piece?}
+      return true
+    end
+    puts "Choose a destination with a clear way: "
+    false
   end
 
 
@@ -243,6 +243,25 @@ class ChessBoard
     end
   end
 
+  def get_fields_king_can_escape_to(king)
+    # checks every field the king can reach
+    # if it is empty OR
+    # if it occuppied by an opponent
+    neighbour_fields_positions = king.next_movements
+    neighbour_fields = neighbour_fields_positions.map{|position| get_field_with_position(position)}
+    neighbour_fields.select{|field| (field.empty? || field.occupies_opponent_piece?(get_opposite_color(king.color)))}
+  end
+
+  def fields_not_endangered_by_opponent(escape_fields, king)
+    # remove king temporary from board so that we can test which fields are under attack and which are not
+    self.board[king.position.first, king.position.last].piece = nil
+    # returns those fields, which are not endangered by an opponent piece
+    fields = escape_fields.select{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color), 'take').empty?}
+    # set king back onto the board
+    self.board[king.position.first, king.position.last].piece = king
+    return fields
+  end
+
 
   #-- check for victory --
   def victory?
@@ -323,25 +342,6 @@ class ChessBoard
       # check if that field is endangered by the opponent
       return fields_not_endangered_by_opponent(escape_fields, king).empty? ? false : true
     end
-  end
-
-  def get_fields_king_can_escape_to(king)
-    # checks every field the king can reach
-    # if it is empty OR
-    # if it occuppied by an opponent
-    neighbour_fields_positions = king.next_movements
-    neighbour_fields = neighbour_fields_positions.map{|position| get_field_with_position(position)}
-    neighbour_fields.select{|field| (field.empty? || field.occupies_opponent_piece?(get_opposite_color(king.color)))}
-  end
-
-  def fields_not_endangered_by_opponent(escape_fields, king)
-    # remove king temporary from board so that we can test which fields are under attack and which are not
-    self.board[king.position.first, king.position.last].piece = nil
-    # returns those fields, which are not endangered by an opponent piece
-    fields = escape_fields.select{|field| pieces_able_to_reach_field(field, get_opposite_color(king.color), 'take').empty?}
-    # set king back onto the board
-    self.board[king.position.first, king.position.last].piece = king
-    return fields
   end
 
   def sacrifice_possible?(king, pieces_attacking_king)
