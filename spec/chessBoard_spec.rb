@@ -729,7 +729,7 @@ describe ChessBoard do
           end
         end
       end  
-    end    
+    end
   end
 
   describe '#checkmate?' do
@@ -837,6 +837,157 @@ describe ChessBoard do
       end
     end
 
+    
+  end
+
+  describe '#victory?' do
+    subject(:chess_board){described_class.new}
+    context 'when the white king is attacked' do
+  
+      context 'when king is captured' do
+        before do
+          # mark white king as captured
+          chess_board.board[7,4].piece.captured = true
+          chess_board.captured_white_pieces << chess_board.board[7,4].piece
+          chess_board.white_pieces.delete(chess_board.board[7,4].piece)
+          chess_board.board[7,4].piece = nil    
+        end
+        it 'returns :black' do
+          solution = chess_board.victory?
+          expect(solution).to match(:black)
+        end
+      end  
+
+      context 'when king is check' do
+        before do
+          allow(chess_board).to receive(:announce_check)
+          # prepare board
+          # remove pawn above king
+          chess_board.captured_white_pieces << chess_board.board[6,4].piece
+          chess_board.white_pieces.delete(chess_board.board[6,4].piece)
+          chess_board.board[6,4].piece = nil
+  
+          # set rook attacking king from above
+          chess_board.board[2,4].piece = Rook.new(:black, [2,4])
+          chess_board.black_pieces << Rook.new(:black, [2,4])
+        end
+
+        it 'announce check and return false' do
+          solution = chess_board.victory?
+          expect(chess_board).to have_received(:announce_check).with(:white)
+          expect(solution).to be false
+        end
+      end
+
+      context 'when king is checkmate' do
+        before do
+          allow(chess_board).to receive(:announce_checkmate)
+          # prepare board
+          # remove pawn above king
+          chess_board.captured_white_pieces << chess_board.board[6,4].piece
+          chess_board.white_pieces.delete(chess_board.board[6,4].piece)
+          chess_board.board[6,4].piece = nil
+    
+          # set rook attacking king from above
+          chess_board.board[2,4].piece = Rook.new(:black, [2,4])
+          chess_board.black_pieces << Rook.new(:black, [2,4])
+
+          # move king to field [6,4], as from there it cant be saved by another piece
+          chess_board.board[7,4].piece.position = [6,4]
+          chess_board.board[6,4].piece = chess_board.board[7,4].piece
+          chess_board.board[7,4].piece = nil
+
+          # position another piece on [5,3] and [5,5], so king cant move into safety
+          chess_board.board[5,3].piece = Pawn.new(:white, [5,3])
+          chess_board.white_pieces << chess_board.board[5,3].piece
+          chess_board.board[5,5].piece = Pawn.new(:white, [5,5])
+          chess_board.white_pieces << chess_board.board[5,5].piece
+        end
+
+        it 'announce check and return :black' do
+          solution = chess_board.victory?
+          expect(chess_board).to have_received(:announce_checkmate).with(:white)
+          expect(solution).to match(:black)
+        end
+      end
+    end
+
+    context 'when the black king is attacked' do
+      context 'when king is captured' do
+        before do
+          # mark white king as captured
+          chess_board.board[0,4].piece.captured = true
+          chess_board.captured_black_pieces << chess_board.board[0,4].piece
+          chess_board.black_pieces.delete(chess_board.board[0,4].piece)
+          chess_board.board[0,4].piece = nil    
+        end
+
+        it 'returns :white' do
+          solution = chess_board.victory?
+          expect(solution).to match(:white)
+        end
+      end  
+
+      context 'when king is check' do
+        before do
+          allow(chess_board).to receive(:announce_check)
+          # prepare board
+          # remove pawn above king
+          chess_board.captured_black_pieces << chess_board.board[1,4].piece
+          chess_board.black_pieces.delete(chess_board.board[1,4].piece)
+          chess_board.board[1,4].piece = nil
+  
+          # set rook attacking king from above
+          chess_board.board[5,4].piece = Rook.new(:white, [5,4])
+          chess_board.white_pieces << Rook.new(:white, [5,4])
+        end
+
+        it 'announce check and return false' do
+          solution = chess_board.victory?
+          expect(chess_board).to have_received(:announce_check).with(:black)
+          expect(solution).to be false
+        end
+      end
+
+      context 'when king is checkmate' do
+        before do
+          allow(chess_board).to receive(:announce_checkmate)
+          # prepare board
+          # remove pawn above king
+          chess_board.captured_black_pieces << chess_board.board[1,4].piece
+          chess_board.black_pieces.delete(chess_board.board[1,4].piece)
+          chess_board.board[1,4].piece = nil
+    
+          # set rook attacking king from above
+          chess_board.board[5,4].piece = Rook.new(:white, [5,4])
+          chess_board.white_pieces << Rook.new(:white, [5,4])
+
+          # move king to field [1,4], as from there it cant be saved by another piece
+          chess_board.board[0,4].piece.position = [1,4]
+          chess_board.board[1,4].piece = chess_board.board[0,4].piece
+          chess_board.board[0,4].piece = nil
+
+          # position another piece on [2,3] and [2,5], so king cant move into safety
+          chess_board.board[2,3].piece = Pawn.new(:black, [2,3])
+          chess_board.black_pieces << chess_board.board[2,3].piece
+          chess_board.board[2,5].piece = Pawn.new(:black, [2,5])
+          chess_board.black_pieces << chess_board.board[2,5].piece
+        end
+
+        it 'announce check and return :white' do
+          solution = chess_board.victory?
+          expect(chess_board).to have_received(:announce_checkmate).with(:black)
+          expect(solution).to match(:white)
+        end
+      end
+    end
+
+    context 'when no king is attacked' do
+      it 'returns false' do
+        solution = chess_board.victory?
+        expect(solution).to be false
+      end
+    end
     
   end
 end

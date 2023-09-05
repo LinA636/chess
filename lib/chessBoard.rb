@@ -251,28 +251,29 @@ class ChessBoard
     white_king = kings.first
     black_king = kings.last
 
+    # check for captured kings
     if king_captured?(white_king)
       return :black
     elsif king_captured?(black_king)
       return :white
     end
 
+    # check for check
     if check?(white_king)
-      if checkmate?(white_king)
-        announce_checkmate(white_king.color)
-        return :black
-      else
-        announce_check(white_king.color)
-        return false
-      end
+      announce_check(white_king.color)
+      return false
     elsif check?(black_king)
-      if checkmate?(black_king)
-        announce_checkmate(black_king.color)
-        return :white
-      else
-        announce_check(black_king.color)
-        return false
-      end
+      announce_check(black_king.color)
+      return false
+    end
+
+    # check for checkmate
+    if checkmate?(white_king)
+      announce_checkmate(white_king.color)
+      return :black
+    elsif checkmate?(black_king)
+      announce_checkmate(black_king.color)
+      return :white
     end
 
     return false
