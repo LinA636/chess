@@ -112,6 +112,8 @@ class ChessBoard
         if (clear_way?(fields_inbetween) && valid_end_field?(moving_piece, end_field, current_player))
           return true
         end
+      else
+        puts "Choose reachable destination:"
       end
     end
     false
@@ -132,7 +134,7 @@ class ChessBoard
   def valid_end_field?(moving_piece, end_field, current_player)
     # either field is unoccupied or its occupied by the opponent
     # if moving_piece is a pawn check if it is making a move or a taking
-    if moving_piece.instance_of?(Pawn) && moving_piece.taking?(end_field)
+    if (moving_piece.instance_of?(Pawn) && moving_piece.taking?(end_field))
       if end_field.occupies_opponent_piece?(get_opposite_color(current_player.color))
         return true
       else
@@ -162,6 +164,7 @@ class ChessBoard
     # start_field is already tested to occupie current_players piece
     # end_field is reachable without other pieces being in the way or being occupied by own piece
     moving_piece = start_field.piece
+    update_first_move_done(moving_piece)
     update_end_field(end_field, moving_piece)
     update_start_field(start_field)
   end
@@ -190,6 +193,14 @@ class ChessBoard
 
   def update_start_field(start_field)
     start_field.piece = nil
+  end
+
+  def update_first_move_done(moving_piece)
+    if [King, Pawn, Rook].any?{|class_item| moving_piece.instance_of?(class_item)}
+      unless moving_piece.first_move_done
+        moving_piece.first_move_done = true
+      end
+    end
   end
 
 

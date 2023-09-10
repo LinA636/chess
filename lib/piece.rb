@@ -35,7 +35,6 @@ class Piece
     if movements.include?(end_field.position)
       true
     else
-      puts "Choose reachable destination: "
       false
     end
   end
