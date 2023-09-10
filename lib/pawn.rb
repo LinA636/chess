@@ -22,7 +22,7 @@ class Pawn < Piece
     unless first_move_done
       self.color == :white ? super(MOVEMENTS_WHITE) : super(MOVEMENTS_BLACK)
     else
-      self.color == :white ? super(MOVEMENTS_WHITE.first) : super(MOVEMENTS_BLACK.first)
+      self.color == :white ? super([MOVEMENTS_WHITE.first]) : super([MOVEMENTS_BLACK.first])
     end
   end
 
