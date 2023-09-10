@@ -101,6 +101,7 @@ describe ChessBoard do
       end
     end
   end
+  
   describe '#valid_start_field?' do
     let(:current_player){double('Player', color: :white)}
     let(:opponent_player){double('Player', color: :black)}
@@ -449,6 +450,19 @@ describe ChessBoard do
       it 'returns empty field' do
         solution = chess_board.fields_not_endangered_by_opponent(escape_fields, king)
         expect(solution).to match([])
+      end
+    end
+  end
+
+  describe '#find_kings' do
+    subject(:chess_board){described_class.new}
+
+    context 'when board is setup' do
+      it 'returns the white and black king in an array' do
+        white_king = chess_board.board[7,4].piece
+        black_king = chess_board.board[0,4].piece
+        solution = chess_board.find_kings()
+        expect(solution).to match([white_king, black_king])
       end
     end
   end
